@@ -29,12 +29,23 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
+            //registers all route files inside api folder
+            foreach (glob(base_path('routes/api/*.php')) as $file) {
+                Route::group(['middleware' => ['transactional']], function () use ($file) {
+                    Route::prefix('api')
+                        ->middleware('api')
+                        ->namespace($this->namespace)
+                        ->group($file);
+                });
+            }
+            // Add here any new route file
+            //
+            //
+            //
 
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
+
+            // Route::middleware('web')
+            //     ->group(base_path('routes/web.php'));
         });
     }
 }
