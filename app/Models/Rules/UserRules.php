@@ -7,8 +7,8 @@ class UserRules extends BaseRules
     protected function defineRules(): array
     {
         return [
-            'email' => ['email'],
-            'name' => ['between:1,100'],
+            'email' => ['email','unique:users,email'],
+            'name' => ['between:1,100','unique:users,name'],
             'password' => ['between:1,100']
         ];
     }

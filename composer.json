@@ -13,18 +13,8 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
-        "wever/laradot": "dev-main"
+        "wever/laradot": "^3.0"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "C:/Users/Abdullah/Desktop/projects/Laradot",
-            "url": "D:/W.ever/Important/Laradot",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",

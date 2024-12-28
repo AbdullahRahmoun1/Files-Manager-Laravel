@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f74b7f6b6a9fba2a7e7f26c1aea73a28",
+    "content-hash": "661c2a11887a36d84fdf941ff6ffe4af",
     "packages": [
         {
             "name": "brick/math",
@@ -5757,11 +5757,17 @@
         },
         {
             "name": "wever/laradot",
-            "version": "dev-main",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://gitlab.com/composer5100442/Laradot.git",
+                "reference": "07bdb986e3a453e8b77615fb83ebadcea2c816ed"
+            },
             "dist": {
-                "type": "path",
-                "url": "D:/W.ever/Important/Laradot",
-                "reference": "ace56355168491651b7bf9a0280c43a3f9af9bc1"
+                "type": "zip",
+                "url": "https://gitlab.com/api/v4/projects/composer5100442%2FLaradot/repository/archive.zip?sha=07bdb986e3a453e8b77615fb83ebadcea2c816ed",
+                "reference": "07bdb986e3a453e8b77615fb83ebadcea2c816ed",
+                "shasum": ""
             },
             "require": {
                 "ext-gd": "*",
@@ -5781,23 +5787,20 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Wever\\Laradot\\": "src/"
-                },
                 "files": [
                     "src/App/Helpers/helpers.php"
-                ]
-            },
-            "autoload-dev": {
+                ],
                 "psr-4": {
-                    "Wever\\Laradot\\Tests\\": "tests/"
+                    "Wever\\Laradot\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "description": "A library built on top of the Laravel framework to enhance development.",
-            "transport-options": {
-                "symlink": true,
-                "relative": false
-            }
+            "support": {
+                "issues": "https://gitlab.com/composer5100442/Laradot/-/issues",
+                "source": "https://gitlab.com/composer5100442/Laradot/-/tree/v3.0.0"
+            },
+            "time": "2024-12-28T20:17:08+00:00"
         }
     ],
     "packages-dev": [
@@ -8315,9 +8318,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "wever/laradot": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
