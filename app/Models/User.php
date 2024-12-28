@@ -42,4 +42,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function superAdmin(){
+        return $this->hasOne(SuperAdmin::class);
+    }
+    public function isSuperAdmin(){
+        return $this->superAdmin()->exists();
+    }
 }

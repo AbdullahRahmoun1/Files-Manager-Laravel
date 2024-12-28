@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\Book;
 use App\Models\Page;
+use App\Models\SuperAdmin;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Book::factory(30)->create();
-        Page::factory(200)->create();
+        $this->call(UserSeeder::class);
+        $this->call(SuperAdminSeeder::class);
     }
 }

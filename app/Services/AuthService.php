@@ -43,7 +43,7 @@ class AuthService
         return $result;
     }
 
-    public function validateCountAndCreateToken(Authenticatable $authenticatable)
+    public function validateCountAndCreateToken(User $authenticatable)
     {
         if ($authenticatable->tokens()->count() >= 6) {
             $token = $authenticatable->tokens()->orderBy('created_at')->first();
@@ -53,8 +53,8 @@ class AuthService
             $token->delete();
         }
         $type =
-            //is super
-            false?RoleTypeEnum::ADMIN->value:RoleTypeEnum::USER->value
+            $authenticatable->isSuperAdmin()
+            ?RoleTypeEnum::ADMIN->value:RoleTypeEnum::USER->value
         ;
         $token = $authenticatable
         ->createToken(request()->ip(), [$type]);
