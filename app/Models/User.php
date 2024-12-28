@@ -43,10 +43,23 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function superAdmin(){
+    public function superAdmin()
+    {
         return $this->hasOne(SuperAdmin::class);
     }
-    public function isSuperAdmin(){
+    public function isSuperAdmin()
+    {
         return $this->superAdmin()->exists();
+    }
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, GroupUser::class)
+            ->whereNotNull('joined_at');
+    }
+    public function groupeInvitations()
+    {
+        return $this->belongsToMany(Group::class, GroupUser::class)
+            ->where('invitation_expires_at', '>', now())
+            ->whereNull('joined_at');
     }
 }

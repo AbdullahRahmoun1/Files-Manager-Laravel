@@ -8,12 +8,13 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Throwable;
-use Str;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class Handler extends ExceptionHandler
 {
     use Logger;
+
     /**
      * The list of the inputs that are never flashed to the session on validation exceptions.
      *
@@ -25,27 +26,35 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    public function render($request, Throwable $e)
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function render($request, Throwable $e): Response
     {
-//        return parent::render($request,$e);
-        //Our exceptions
+        // Handle custom exceptions
         if ($e instanceof BaseException) {
             return $e->render();
         }
-        //Laravel's Exceptions but we want to handle them differently
+
+        // Handle Laravel's specific exceptions
         if ($e instanceof ModelNotFoundException) {
             return $this->renderModelNotFound($e);
         }
+
         if ($e instanceof ValidationException) {
             return $this->renderValidationError($e);
         }
 
-        //unknown exception!
-        if (env('APP_DEBUG', true)) {
+        // Handle unknown exceptions
+        if (config('app.debug')) {
             return $this->convertToCorrectFormat(
                 parent::render($request, $e)
             );
-        }else {
+        } else {
             return $this->errorResponse(
                 __('custom.Unexpected error'),
                 500
@@ -53,18 +62,30 @@ class Handler extends ExceptionHandler
         }
     }
 
+    /**
+     * Render a model not found exception.
+     *
+     * @param ModelNotFoundException $e
+     * @return \Illuminate\Http\JsonResponse
+     */
     private function renderModelNotFound(ModelNotFoundException $e)
     {
         $modelClass = $e->getModel();
-        // Convert the model class name to a more user-friendly name
         $modelName = class_basename($modelClass);
         $modelName = str_replace('_', ' ', Str::snake($modelName));
         $modelName = ucfirst($modelName);
         $message = "Sorry, the requested " . $modelName . " could not be found.";
-        return $this->errorResponse($message,404);
+        return $this->errorResponse($message, 404);
     }
 
-    private function renderValidationError(ValidationException $e) {
+    /**
+     * Render a validation exception.
+     *
+     * @param ValidationException $e
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function renderValidationError(ValidationException $e)
+    {
         $response = [
             'message' => $e->getMessage(),
             'errors' => collect($e->errors())->flatten(),
@@ -72,38 +93,66 @@ class Handler extends ExceptionHandler
         return response()->json($response, $e->status);
     }
 
-    private function errorResponse($message,$code){
+    /**
+     * Return a JSON error response.
+     *
+     * @param string $message
+     * @param int $code
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function errorResponse(string $message, int $code)
+    {
         return response()->json([
             'message' => $message,
-            'errors' => [
-                $message
-            ]
+            'errors' => [$message],
         ], $code);
     }
 
-    public function report(Throwable $e)
+    /**
+     * Report or log an exception.
+     *
+     * @param Throwable $e
+     * @return void
+     */
+    public function report(Throwable $e): void
     {
-        if ($e instanceof QueryException){
-            $this->log_exception($e,[
-                'sql' => PHP_EOL.$e->getSql(),
-                'bindings' =>[PHP_EOL]+$e->getBindings(),
-            ],'database');
+        if ($e instanceof QueryException) {
+            $this->log_exception($e, [
+                'sql' => $e->getSql(),
+                'bindings' => $e->getBindings(),
+            ], 'database');
         }
+
         if ($e instanceof BaseException) {
             $e->report();
         }
+
         parent::report($e);
     }
 
-    private function convertToCorrectFormat(Response $response) :Response{
-        $data=$response->getContent();
-        $data = json_decode($data,true);
-        // dd($response);
+    /**
+     * Convert a Laravel response to a consistent JSON format.
+     *
+     * @param Response $response
+     * @return Response
+     */
+    private function convertToCorrectFormat(Response $response): Response
+    {
+        $data = $response->getContent();
+
+        $decoded = json_decode($data, true);
+
+        // Handle cases where the response content might not be JSON
+        if (!is_array($decoded)) {
+            $decoded = ['message' => $data, 'trace' => []];
+        }
+
         $result = [
-            'message'=>$data['message']??"",
-            'errors'=>isset($data['errors'])?$data['errors']:[$data['message']],
-            'stacktrace' => $data['trace']
+            'message' => $decoded['message'] ?? '',
+            'errors' => $decoded['errors'] ?? [$decoded['message'] ?? 'Unexpected error'],
+            'stacktrace' => $decoded['trace'] ?? [],
         ];
+
         $response->setContent(json_encode($result));
         return $response;
     }

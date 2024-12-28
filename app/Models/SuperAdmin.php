@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class SuperAdmin extends Model
 {
     use HasFactory;
-
-
     protected $fillable = [
         'user_id',
     ];
