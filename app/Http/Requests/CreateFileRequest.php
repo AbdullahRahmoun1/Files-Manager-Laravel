@@ -10,6 +10,7 @@ class CreateFileRequest extends FormRequest
         return FileRules::required('parent_id','path')
             ->append('path',['required_if:is_folder,false'])
             ->append('is_folder',['required','boolean'])
+            ->append('group_id',['required','exists:groups,id'])
             ->getRules();
     }
 

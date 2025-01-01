@@ -41,4 +41,8 @@ class File extends Model
     public function directChildren(){
         return $this->hasMany(File::class,'parent_id');
     }
+
+    public function groups(){
+        return $this->belongsToMany(Group::class,'group_files');
+    }
 }

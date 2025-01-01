@@ -18,7 +18,8 @@ class GroupResource extends JsonResource
             'color' => $this->color,
             'lang' => $this->lang,
             'creator_id' => $this->creator_id,
-            'creator' => UserResource::make($this->whenLoaded('creator'))
+            'creator' => UserResource::make($this->whenLoaded('creator')),
+            'files' => FileResource::collection($this->whenLoaded('files'))
         ];
     }
 }

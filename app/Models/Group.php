@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Group extends Model
 {
@@ -19,5 +18,9 @@ class Group extends Model
 
     public function creator(){
         return $this->belongsTo(User::class,'creator_id');
+    }
+
+    public function files(){
+        return $this->belongsToMany(File::class,'group_files');
     }
 }

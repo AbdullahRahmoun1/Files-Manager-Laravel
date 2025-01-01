@@ -13,12 +13,12 @@ class GroupService extends DotService
     }
     public function dotIndex($query = null)
     {
-        $query = request()->user()->groups();
+        $query = request()->user()->groups()->with('files');
         return parent::dotIndex($query);
     }
     public function dotAll($query = null)
     {
-        $query = request()->user()->groups();
+        $query = request()->user()->groups()->with('files');
         return parent::dotAll($query);
     }
     public function dotShow($id)
@@ -26,7 +26,10 @@ class GroupService extends DotService
         if (!request()->user()->groups()->where('groups.id', $id)->exists()) {
             throwError("You don't have the permission to view this group.");
         }
-        return parent::dotShow($id);
+
+        $model = parent::dotShow($id);
+        $model->load('files');
+        return $model;
     }
     public function dotCreate($data)
     {

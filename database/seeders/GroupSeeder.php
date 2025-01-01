@@ -14,18 +14,28 @@ class GroupSeeder extends Seeder
      */
     public function run(): void
     {
-        Group::create([
+        $user = User::whereDoesntHave('superAdmin')->firstOrFail();
+        $group = Group::create([
             'name' => 'Group 1',
             'description' => 'Group created by a user',
             'lang' => 'en',
-            'creator_id' => User::whereDoesntHave('superAdmin')->firstOrFail()->id,
+            'creator_id' => $user->id,
         ]);
-        Group::create([
+        $user->groups()->attach($group->id,[
+            'inviter_id' => $user->id,
+            'joined_at' => now()
+        ]);
+        $user = User::whereHas('superAdmin')->firstOrFail();
+        $group = Group::create([
             'name' => 'Group 2',
             'description' => 'Group created by a user who is actually a super admin',
             'color' => '#FF0000',
             'lang' => 'en',
-            'creator_id' => User::whereHas('superAdmin')->firstOrFail()->id,
+            'creator_id' => $user->id,
+        ]);
+        $user->groups()->attach($group->id,[
+            'inviter_id' => $user->id,
+            'joined_at' => now()
         ]);
     }
 }

@@ -16,4 +16,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('delete/{id}', 'deleteInvitation');
     });
     Route::feature('files', FileController::class);
+    Route::get('files/{file}/children',[FileController::class,'getChildren']);
 });
