@@ -24,7 +24,7 @@ class File extends Model
                 'storage' => 'files',
                 'file_name_generator' => fn() => Str::random(30),
                 'operations' => [
-                        'compress',
+                        // 'compress',
                 ],
             ]
         ];
@@ -41,8 +41,14 @@ class File extends Model
     public function directChildren(){
         return $this->hasMany(File::class,'parent_id');
     }
-
     public function groups(){
         return $this->belongsToMany(Group::class,'group_files');
+    }
+
+    public function checkIns(){
+        return $this->hasMany(CheckIn::class);
+    }
+    public function activeCheckIns(){
+        return $this->hasMany(CheckIn::class)->whereNull('checked_out_at');
     }
 }
