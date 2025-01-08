@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Wever\Laradot\App\FilterTypes\LikeFilter;
+use Wever\Laradot\App\Traits\Filterable;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable,Filterable;
 
     /**
      * The attributes that are mass assignable.
@@ -43,6 +45,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public $filterable = [
+        'email' => LikeFilter::class,
+        'name' => LikeFilter::class
+    ];
+
     public function superAdmin()
     {
         return $this->hasOne(SuperAdmin::class);
@@ -61,5 +68,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, GroupUser::class)
             ->where('invitation_expires_at', '>', now())
             ->whereNull('joined_at');
+    }
+
+    public function fcmTokens(){
+        return $this->morphMany(FirebaseToken::class,'owner');
     }
 }

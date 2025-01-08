@@ -9,7 +9,8 @@ class UserRules extends BaseRules
         return [
             'email' => ['email','unique:users,email'],
             'name' => ['between:1,100','unique:users,name'],
-            'password' => ['between:1,100']
+            'password' => ['between:1,100'],
+            'fcm_token' => ['string','between:1,255']
         ];
     }
 

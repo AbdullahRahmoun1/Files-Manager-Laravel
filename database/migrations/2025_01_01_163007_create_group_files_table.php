@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\GroupFileStatusEnum;
 use App\Models\File;
 use App\Models\Group;
 use Illuminate\Database\Migrations\Migration;
@@ -17,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(File::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Group::class)->constrained()->cascadeOnDelete();
+            $table->enum('status',GroupFileStatusEnum::values())->default(GroupFileStatusEnum::PENDING);
             $table->timestamps();
         });
     }

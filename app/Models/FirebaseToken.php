@@ -14,4 +14,8 @@ class FirebaseToken extends Model
         'auth_token',
         'fcm_token'
     ];
+
+    public function owner(){
+        return $this->morphTo('owner');
+    }
 }

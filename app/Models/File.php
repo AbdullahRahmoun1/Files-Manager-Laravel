@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\GroupFileStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Wever\Laradot\App\Traits\HasFiles;
@@ -42,7 +43,8 @@ class File extends Model
         return $this->hasMany(File::class,'parent_id');
     }
     public function groups(){
-        return $this->belongsToMany(Group::class,'group_files');
+        return $this->belongsToMany(Group::class,'group_files')
+        ->where('group_files.status', GroupFileStatusEnum::ACCEPTED);
     }
 
     public function checkIns(){

@@ -10,7 +10,8 @@ class LoginUserRequest extends FormRequest
     {
         return [
             'email' => ['required','email'],
-            'password' => ['required','between:1,100']
+            'password' => ['required','between:1,100'],
+            'fcm_token' => ['string','between:1,255']
         ];
     }
 }
