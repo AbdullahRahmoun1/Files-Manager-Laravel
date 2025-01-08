@@ -26,6 +26,14 @@ class CheckInService extends DotService
             'checked_in_at' => now()
         ]);
     }
+
+    public function bulkCheckIn(array $files_ids){
+        $result = [];
+        foreach($files_ids as $fId){
+            $result[] = $this->checkIn($fId);
+        }
+        return $result;
+    }
     public function checkOut($file_id) {
         $file = File::findOrFail($file_id);
         $user = request()->user();

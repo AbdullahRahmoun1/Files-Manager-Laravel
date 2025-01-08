@@ -28,4 +28,9 @@ class CheckInController extends DotController
         $this->service->checkOut($file_id);
         return self::success();
     }
+
+    public function bulkCheckIn($files_ids){
+        $data= $this->service->bulkCheckIn(explode(',',$files_ids));
+        return self::success(CheckInResource::collection($data));
+    }
 }

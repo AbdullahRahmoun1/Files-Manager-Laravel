@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('groups/files/decideStatus',[FileController::class,'decideFileStatus']);
     Route::controller(CheckInController::class)->group(function(){
         Route::post('files/{file_id}/check-in','checkIn');
+        Route::post('files/{files_ids}/bulk-check-in','bulkCheckIn');
         Route::post('files/{file_id}/check-out','checkOut');
         Route::get('checked-files/','checked-files');
     });
