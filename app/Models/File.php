@@ -53,4 +53,8 @@ class File extends Model
     public function activeCheckIns(){
         return $this->hasMany(CheckIn::class)->whereNull('checked_out_at');
     }
+
+    public function histories(){
+        return $this->hasMany(FileHistory::class)->orderByDesc('version');
+    }
 }

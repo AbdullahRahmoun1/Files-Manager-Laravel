@@ -43,11 +43,15 @@ class CheckInService extends DotService
         }
         if(request()->hasFile('file')){
             $newFile = request()->file('file');
+            $oldFilePath = $file->path;
             if($newFile->getClientOriginalExtension() != $file->extension){
                 throwError("Thew new file should have the same extension as the original one.");
             }
-            $file->storeFile('path',$newFile);
-            //do the history and replace stuff
+            $file->storeFile('path',$newFile,false);
+            //history stuff
+            app(FileHistoryService::class)->createVersion(
+                $file,$checkIn,$oldFilePath
+            );
         }
         return $this->dotUpdate($checkIn,[
             'checked_out_at' => now()

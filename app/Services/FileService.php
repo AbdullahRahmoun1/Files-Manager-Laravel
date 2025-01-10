@@ -35,9 +35,11 @@ class FileService extends DotService
             $file = request()->file('path');
             $fileModel->storeFile('path', $file);
             $fileModel->update(['extension' => $file->getClientOriginalExtension()]);
+            app(FileHistoryService::class)
+                ->createVersion($fileModel, null, $fileModel->path);
         }
         return [
-            'message' => $isGroupOwner ? "File Added Successfully." : "Success!, waiting for group admin's approval.",
+            'message' => $isGroupOwner ? "Success." : "Success!, waiting for group admin's approval.",
             'file' => $fileModel
         ];
     }
@@ -50,8 +52,12 @@ class FileService extends DotService
         return $file->directChildren;
     }
 
-    public function getFilesToApprove(Group $group)
+    public function getPendingFiles(Group $group)
     {
+        $user = request()->user();
+        if ($group->creator_id != $user->id) {
+            throwError("You don't have the permission to do this.");
+        }
         return $group->unacceptedFiles;
     }
 
@@ -65,7 +71,6 @@ class FileService extends DotService
         $fileGroup = GroupFile::where('group_id', $data['group_id'])
             ->where('file_id', $data['file_id'])
             ->where('status', GroupFileStatusEnum::PENDING)
-            // ->ddRawSql();
             ->firstOrFail();
         $fileGroup->status = $data['status'];
         $fileGroup->save();

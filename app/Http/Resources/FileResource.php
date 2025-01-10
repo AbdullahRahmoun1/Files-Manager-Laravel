@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Wever\Laradot\App\Traits\ResourcePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 class FileResource extends JsonResource
 {
@@ -23,6 +24,7 @@ class FileResource extends JsonResource
             'parent' => FileResource::make($this->whenLoaded('parent')),
             'directChildren' => FileResource::collection($this->whenLoaded('directChildren')),
             'children' => FileResource::collection($this->whenLoaded('children')),
+            'date_time' => Carbon::parse($this->created_at)->toDateTimeString()
         ];
     }
 }

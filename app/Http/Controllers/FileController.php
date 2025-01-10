@@ -40,10 +40,10 @@ class FileController extends DotController
         );
     }
 
-    public function getFilesToApprove(Group $group)
+    public function getPendingFiles(Group $group)
     {
         return $this->success(
-            FileResource::collection($this->service->getFilesToApprove($group))
+            FileResource::collection($this->service->getPendingFiles($group))
         );
     }
     public function decideFileStatus(DecideFileStatusRequest $request)
