@@ -51,4 +51,10 @@ class FileController extends DotController
         $this->service->decideFileStatus($request->validated());
         return $this->success();
     }
+
+    public function getFileReport(File $file){
+        return $this->success(
+            $this->service->getFileReport($file)
+        );
+    }
 }
