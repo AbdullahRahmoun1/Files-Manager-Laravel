@@ -50,7 +50,7 @@ class CheckInService extends DotService
             $file->storeFile('path',$newFile,false);
             //history stuff
             app(FileHistoryService::class)->createVersion(
-                $file,$checkIn,$oldFilePath
+                $file,$checkIn,$file->path
             );
         }
         return $this->dotUpdate($checkIn,[

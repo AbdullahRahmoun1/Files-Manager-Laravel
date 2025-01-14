@@ -6,8 +6,14 @@ use App\Http\Controllers\FileHistoryController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\UserController;
+use App\Services\FileComparisonService;
 use Illuminate\Support\Facades\Route;
-
+Route::get('test',function(){
+    return app(FileComparisonService::class)->compare(
+        'files/bYPgQKmDkuv6924jLhlpt1mq7HqbpZB93vbc6LG9.txt',
+        'files/elRlxRmMEoAJFdqVU3rF3ezewaF2eUvtRUU2HXYR.txt'
+    );
+});
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('users/search',[UserController::class,'dotAll']);
     Route::feature('groups', GroupController::class);

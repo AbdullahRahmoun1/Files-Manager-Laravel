@@ -14,12 +14,23 @@ class FileHistoryService extends DotService
         parent::__construct(FileHistory::class);
     }
     public function createVersion(File $file,CheckIn|null $checkIn,$path){
-        $this->dotCreate([
+        $lastHistory = $file->histories()->first();
+        $history = $this->dotCreate([
             'path' => $path,
             'file_id' =>$file->id,
             'check_in_id' => $checkIn->id??null,
             'version' => $this->getNextVersion($file)
         ]);
+        if($lastHistory){
+            dispatch(function()use($history,$lastHistory){
+                $diffString = app(FileComparisonService::class)->compare(
+                    $lastHistory->path,
+                    $history->path,
+                );
+                $history->comparison = $diffString;
+                $history->save();
+            });
+        }
     }
     public function getNextVersion(File $file){
         $oldVersion = $file->histories()->first()->version??0.9;

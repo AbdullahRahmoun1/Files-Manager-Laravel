@@ -18,7 +18,7 @@ class FileHistoryResource extends JsonResource
             'id' => $this->id,
             'version' => $this->version,
             'path' => $this->path,
-            'comparison_path' => $this->comparison_path,
+            'comparison' => $this->comparison,
             'file_id' => $this->file_id,
             'check_in_id' => $this->check_in_id,
             'file' => FileResource::make($this->whenLoaded('file')),

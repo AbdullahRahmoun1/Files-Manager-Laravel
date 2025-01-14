@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('file_histories', function (Blueprint $table) {
             $table->id();
             $table->string('path');
-            $table->string('comparison_path')->nullable();
+            $table->text('comparison')->nullable();
             $table->unsignedFloat('version');
             $table->foreignIdFor(CheckIn::class)->nullable()->constrained();
             $table->foreignIdFor(File::class)->constrained()->cascadeOnDelete();
