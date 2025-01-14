@@ -28,7 +28,6 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     Route::feature('files', FileController::class);
     Route::get('files/{file}/children', [FileController::class, 'getChildren']);
-    Route::get('files/{file}/report', [FileController::class, 'getFileReport']);
     Route::get('groups/{group}/files-to-approve', [FileController::class, 'getPendingFiles']);
     Route::post('groups/files/decideStatus', [FileController::class, 'decideFileStatus']);
     Route::controller(CheckInController::class)->group(function () {
@@ -38,4 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('checked-files/', 'checked-files');
     });
     Route::feature('file-history', FileHistoryController::class);
+    Route::get('files/{file}/report', [FileController::class, 'getFileReport']);
+    Route::get('groups/{group}/report', [GroupController::class, 'getGroupReport']);
 });

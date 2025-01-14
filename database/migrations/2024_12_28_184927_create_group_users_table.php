@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignIdFor(Group::class)->constrained()->onDelete('cascade');
             $table->foreignId('inviter_id')->references('id')->on('users')->constrained();
             $table->foreignIdFor(User::class)->constrained();
+            $table->datetime("refused_at")->nullable();
+            $table->datetime("kicked_at")->nullable();
             $table->timestamps();
         });
     }

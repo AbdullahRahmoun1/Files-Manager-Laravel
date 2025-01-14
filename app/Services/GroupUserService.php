@@ -53,11 +53,21 @@ class GroupUserService extends DotService
 
     public function delete($id)
     {
-        $user = request()->user();
+        $connectedUser = request()->user();
         $groupUser = GroupUser::invitations()->findOrFail($id);
-        if ($groupUser->inviter_id != $user->id) {
-            throwError("Only the inviter can delete the invitation.");
+        $inviter_id = $groupUser->inviter_id;
+        $invitee_id = $groupUser->user_id;
+        if (
+            $connectedUser->id != $inviter_id
+            && $connectedUser->id != $invitee_id
+        ) {
+            throwError("You don't have the permission to do this");
         }
-        $groupUser->delete();
+        if($connectedUser->id == $invitee_id){
+            $groupUser->refused_at = true;
+            $groupUser->save();
+        }else{
+            $groupUser->delete();
+        }
     }
 }

@@ -18,6 +18,7 @@ class GroupUser extends Model
     ];
     public function scopeInvitations(){
         return $this->where('invitation_expires_at', '>', now())
+        ->whereNull("refused_at")
         ->whereNull('joined_at');
     }
     public function inviter(){

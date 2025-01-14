@@ -31,7 +31,8 @@ class FileService extends DotService
         $fileModel->groups()->attach($data['group_id'], [
             'status' => $isGroupOwner ?
                 GroupFileStatusEnum::ACCEPTED :
-                GroupFileStatusEnum::PENDING
+                GroupFileStatusEnum::PENDING,
+            'created_at' => now()
         ]);
         if (!$data['is_folder']) {
             $file = request()->file('path');
@@ -75,6 +76,7 @@ class FileService extends DotService
             ->where('status', GroupFileStatusEnum::PENDING)
             ->firstOrFail();
         $fileGroup->status = $data['status'];
+        $fileGroup->decided_at = now();
         $fileGroup->save();
     }
 
