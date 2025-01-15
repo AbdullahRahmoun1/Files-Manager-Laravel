@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateFileRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
 use App\Models\Group;
+use App\Services\FileReportService;
 use App\Services\FileService;
 use Illuminate\Http\Request;
 
@@ -53,8 +54,9 @@ class FileController extends DotController
     }
 
     public function getFileReport(File $file){
+        $reportService = app(FileReportService::class);
         return $this->success(
-            $this->service->getFileReport($file)
+            $reportService->getFileReport($file)
         );
     }
 

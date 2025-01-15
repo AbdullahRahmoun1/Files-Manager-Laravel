@@ -16,7 +16,9 @@ class CheckInService extends DotService
     {
         $file = File::lockForUpdate()->findOrFail($file_id);
         $user = request()->user();
-
+        if(!$file->groups()->exists()){
+            throwError("This file isn't attached to any group yet.");
+        }
         if ($file->activeCheckIns()->exists()){
             throwError("This file is already checked-in by a user.");
         }

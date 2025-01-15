@@ -87,28 +87,6 @@ class FileService extends DotService
         $fileGroup->decided_at = now();
         $fileGroup->save();
     }
-
-    public function getFileReport(File $file)
-    {
-        $reports = [];
-        $fileOrFolder = $file->path == null ? "Folder" : "File";
-        $reports[] = $this->getReportLine("$fileOrFolder created.", $file->created_at);
-        foreach ($file->checkIns as $checkIn) {
-            $user = $checkIn->user;
-            $reports[] = $this->getReportLine("User $user->name checked-in.", $checkIn->checked_in_at);
-            if ($checkIn->checked_out_at) {
-                $message = "User $user->name checked-out";
-                if ($checkIn->fileVersion) {
-                    $version = $checkIn->fileVersion->version;
-                    $message .= ", Version (V$version) created.";
-                } else {
-                    $message .= ".";
-                }
-                $reports[] = $this->getReportLine($message, $checkIn->checked_out_at);
-            }
-        }
-        return array_reverse($reports);
-    }
     private function getReportLine($msg, $date, ...$metaData)
     {
         return [

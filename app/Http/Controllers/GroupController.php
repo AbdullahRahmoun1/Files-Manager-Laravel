@@ -8,6 +8,7 @@ use App\Http\Resources\GroupResource;
 use App\Models\Group;
 use App\Models\GroupUser;
 use App\Models\User;
+use App\Services\GroupReportService;
 use App\Services\GroupService;
 
 
@@ -23,8 +24,9 @@ class GroupController extends DotController
     }
 
     public function getGroupReport(Group $group){
+        $reportService = app(GroupReportService::class);
         return $this->success(
-            $this->service->getGroupReport($group)
+            $reportService->getReport($group,request('user_id')??null)
         );
     }
 

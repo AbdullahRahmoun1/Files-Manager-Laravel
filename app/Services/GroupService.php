@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\GroupFileStatusEnum;
+use App\Models\File;
 use Wever\Laradot\App\Services\DotService;
 use App\Models\Group;
 use App\Models\GroupFile;
@@ -97,6 +98,12 @@ class GroupService extends DotService
                     $gFile->decided_at
                 );
             }
+        }
+        //check ins
+        $files = File::whereIn('id',$groupFiles->pluck('file_id'))->get();
+        $fileReportService = app(FileReportService::class);
+        foreach($files as $file){
+            $reports = array_merge($reports,$fileReportService->getCheckInOutRelated($file,true));
         }
         //members management
         $groupUsers = GroupUser::where('group_id', $group->id)->with('inviter', 'user')->get();
