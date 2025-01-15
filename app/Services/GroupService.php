@@ -32,7 +32,7 @@ class GroupService extends DotService
         }
 
         $model = parent::dotShow($id);
-        $model->load('files');
+        $model->load(['files','members']);
         return $model;
     }
     public function dotCreate($data)

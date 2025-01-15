@@ -48,7 +48,8 @@ class File extends Model
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'group_files')
-            ->where('group_files.status', GroupFileStatusEnum::ACCEPTED);
+            ->where('group_files.status', GroupFileStatusEnum::ACCEPTED)
+            ->whereNull('group_files.removed_at');
     }
 
     public function checkIns()

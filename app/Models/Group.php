@@ -25,11 +25,19 @@ class Group extends Model
     public function files()
     {
         return $this->belongsToMany(File::class, 'group_files')
-            ->where('group_files.status', GroupFileStatusEnum::ACCEPTED);
+            ->where('group_files.status', GroupFileStatusEnum::ACCEPTED)
+            ->whereNull('group_files.removed_at');
+    }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'group_users')
+            ->whereNull('kicked_at')
+            ->whereNotNull('joined_at');
     }
     public function pendingFiles()
     {
         return $this->belongsToMany(File::class, 'group_files')
-        ->where('group_files.status', GroupFileStatusEnum::PENDING);
+            ->where('group_files.status', GroupFileStatusEnum::PENDING);
     }
 }

@@ -57,4 +57,8 @@ class FileController extends DotController
             $this->service->getFileReport($file)
         );
     }
+
+    public function removeFile(Group $group,File $file){
+        return self::success($this->service->removeFile($group,$file));
+    }
 }

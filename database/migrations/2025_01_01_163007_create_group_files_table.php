@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignIdFor(Group::class)->constrained()->cascadeOnDelete();
             $table->enum('status',GroupFileStatusEnum::values())->default(GroupFileStatusEnum::PENDING);
             $table->datetime('decided_at')->nullable();
+            $table->datetime('removed_at')->nullable();
             $table->timestamps();
         });
     }

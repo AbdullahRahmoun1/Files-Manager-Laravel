@@ -47,6 +47,14 @@ class FileService extends DotService
         ];
     }
 
+    public function removeFile(Group $group, File $file)
+    {
+        $gFile = GroupFile::active()->where('file_id', $file->id)->firstOrFail();
+        $gFile->removed_at = now();
+        $gFile->save();
+        $file->deleteFile('path');
+    }
+
     public function getChildren(File $file)
     {
         if ($file->path) {
@@ -80,27 +88,29 @@ class FileService extends DotService
         $fileGroup->save();
     }
 
-    public function getFileReport(File $file){
-        $reports = [] ;
-        $fileOrFolder = $file->path==null?"Folder":"File";
-        $reports[] = $this->getReportLine("$fileOrFolder created.",$file->created_at);
-        foreach($file->checkIns as $checkIn){
+    public function getFileReport(File $file)
+    {
+        $reports = [];
+        $fileOrFolder = $file->path == null ? "Folder" : "File";
+        $reports[] = $this->getReportLine("$fileOrFolder created.", $file->created_at);
+        foreach ($file->checkIns as $checkIn) {
             $user = $checkIn->user;
-            $reports[] = $this->getReportLine("User $user->name checked-in.",$checkIn->checked_in_at);
-            if($checkIn->checked_out_at){
+            $reports[] = $this->getReportLine("User $user->name checked-in.", $checkIn->checked_in_at);
+            if ($checkIn->checked_out_at) {
                 $message = "User $user->name checked-out";
-                if($checkIn->fileVersion){
+                if ($checkIn->fileVersion) {
                     $version = $checkIn->fileVersion->version;
-                    $message.= ", Version (V$version) created.";
-                }else {
-                    $message.= ".";
+                    $message .= ", Version (V$version) created.";
+                } else {
+                    $message .= ".";
                 }
-                $reports[] = $this->getReportLine($message,$checkIn->checked_out_at);
+                $reports[] = $this->getReportLine($message, $checkIn->checked_out_at);
             }
         }
         return array_reverse($reports);
     }
-    private function getReportLine($msg,$date,...$metaData){
+    private function getReportLine($msg, $date, ...$metaData)
+    {
         return [
             'message' => $msg,
             'date' => Carbon::parse($date)->toDateTimeString()

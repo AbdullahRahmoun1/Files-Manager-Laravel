@@ -61,6 +61,7 @@ class User extends Authenticatable
     public function groups()
     {
         return $this->belongsToMany(Group::class, GroupUser::class)
+            ->whereNull('kicked_at')
             ->whereNotNull('joined_at');
     }
     public function groupeInvitations()
