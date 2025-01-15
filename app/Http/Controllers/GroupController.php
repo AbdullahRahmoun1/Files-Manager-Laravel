@@ -6,6 +6,8 @@ use App\Http\Requests\CreateGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Resources\GroupResource;
 use App\Models\Group;
+use App\Models\GroupUser;
+use App\Models\User;
 use App\Services\GroupService;
 
 
@@ -24,5 +26,10 @@ class GroupController extends DotController
         return $this->success(
             $this->service->getGroupReport($group)
         );
+    }
+
+    public function kickUser(Group $group,User $user){
+        $this->service->kickUser($group,$user);
+        return self::success();
     }
 }

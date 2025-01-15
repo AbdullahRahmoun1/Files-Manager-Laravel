@@ -29,7 +29,8 @@ class UserService extends DotService
         $reports = [];
         $reports[] = $this->getReportLine(
             "User registered.",
-            $user->created_at
+            $user->created_at,
+            'register'
         );
         //groups
         $groupUsers = GroupUser::where('user_id', $user->id)->orWhere('inviter_id', $user->id)
@@ -41,30 +42,42 @@ class UserService extends DotService
                 if ($gUser->user_id == $group->creator_id) continue;
                 $reports[] = $this->getReportLine(
                     "invited '{$gUser->user->name}' to join '{$group->name}' group.",
-                    $gUser->created_at
+                    $gUser->created_at,
+                    'group-related'
                 );
+                if ($gUser->kicked_at) {
+                    $reports[] = $this->getReportLine(
+                        "Kicked out '{$gUser->user->name}' from '$group->name' group.",
+                        $gUser->kicked_at,
+                        'group-related'
+                    );
+                }
             } else {
                 //he got the invitation
                 $reports[] = $this->getReportLine(
                     "User received an invitation to join '$group->name' group.",
-                    $gUser->created_at
+                    $gUser->created_at,
+                    'group-related'
                 );
                 if ($gUser->joined_at) {
                     $reports[] = $this->getReportLine(
                         "User has accepted the invitation to join '$group->name' group.",
-                        $gUser->joined_at
+                        $gUser->joined_at,
+                        'group-related'
                     );
                 }
                 if ($gUser->refused_at) {
                     $reports[] = $this->getReportLine(
                         "User has refused the invitation to join '$group->name' group.",
-                        $gUser->refused_at
+                        $gUser->refused_at,
+                        'group-related'
                     );
                 }
                 if ($gUser->kicked_at) {
                     $reports[] = $this->getReportLine(
                         "User got kicked out from '$group->name' group.",
-                        $gUser->kicked_at
+                        $gUser->kicked_at,
+                        'group-related'
                     );
                 }
             }
@@ -85,13 +98,15 @@ class UserService extends DotService
             if ($user->id == $group->creator_id) {
                 $reports[] = $this->getReportLine(
                     "User added a new $fileName to '$group->name' group.",
-                    $gFile->created_at
+                    $gFile->created_at,
+                    'file-related'
                 );
                 continue;
             }
             $reports[] = $this->getReportLine(
                 "User requested to add a new $fileName to '$group->name' group.",
-                $gFile->created_at
+                $gFile->created_at,
+                'file-related'
             );
         }
         //.check in\out
@@ -100,10 +115,18 @@ class UserService extends DotService
             $user = $checkIn->user;
             $file = $checkIn->file;
             $group = $file->groups()->first();
-            $reports[] = $this->getReportLine("User checked-in on '$file->name.$file->extension' file inside '$group->name' group.", $checkIn->checked_in_at);
+            $reports[] = $this->getReportLine(
+                "User checked-in on '$file->name.$file->extension' file inside '$group->name' group.",
+                $checkIn->checked_in_at,
+                'file-related'
+            );
             if ($checkIn->checked_out_at) {
                 $message = "User checked-out from '$file->name.$file->extension' file inside '$group->name' group.";
-                $reports[] = $this->getReportLine($message, $checkIn->checked_out_at);
+                $reports[] = $this->getReportLine(
+                    $message,
+                    $checkIn->checked_out_at,
+                    'file-related'
+                );
             }
         }
         usort($reports, function ($a, $b) {
@@ -111,11 +134,12 @@ class UserService extends DotService
         });
         return $reports;
     }
-    private function getReportLine($msg, $date)
+    private function getReportLine($msg, $date, $type)
     {
         return [
             'message' => $msg,
-            'date' => Carbon::parse($date)->toDateTimeString()
+            'date' => Carbon::parse($date)->toDateTimeString(),
+            'type' => $type
         ];
     }
 }

@@ -7,6 +7,7 @@ use Wever\Laradot\App\Services\DotService;
 use App\Models\Group;
 use App\Models\GroupFile;
 use App\Models\GroupUser;
+use App\Models\User;
 use Carbon\Carbon;
 
 class GroupService extends DotService
@@ -47,6 +48,21 @@ class GroupService extends DotService
             'inviter_id' => request()->user()->id
         ]);
         return $group;
+    }
+
+    public function kickUser(Group $group,User $user){
+        if($group->creator_id != request()->user()->id){
+            throwError("You don't have the permission to do this.");
+        }
+        if($group->creator_id == $user->id){
+            throwError("Group owner can't be kicked out.");
+        }
+        $gUser = GroupUser::active()
+            ->where('user_id',$user->id)
+            ->where('group_id',$group->id)
+            ->firstOrFail();
+        $gUser->kicked_at = now();
+        $gUser->save();
     }
 
     public function getGroupReport(Group $group)

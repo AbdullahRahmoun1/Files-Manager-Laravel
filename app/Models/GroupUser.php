@@ -21,6 +21,11 @@ class GroupUser extends Model
         ->whereNull("refused_at")
         ->whereNull('joined_at');
     }
+    public function scopeActive(){
+        return $this
+        ->whereNotNull('joined_at')
+        ->whereNull("kicked_at");
+    }
     public function inviter(){
         return $this->belongsTo(User::class,'inviter_id');
     }

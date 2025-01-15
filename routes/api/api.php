@@ -19,6 +19,7 @@ Route::get('test', function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('users/search', [UserController::class, 'dotAll']);
     Route::feature('groups', GroupController::class);
+    Route::delete('groups/{group}/users/{user}/kick', [GroupController::class, 'kickUser']);
     Route::prefix('group-invitations')
         ->controller(GroupUserController::class)
         ->group(function () {
