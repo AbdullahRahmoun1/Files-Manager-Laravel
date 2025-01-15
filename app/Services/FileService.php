@@ -61,7 +61,7 @@ class FileService extends DotService
         if ($group->creator_id != $user->id) {
             throwError("You don't have the permission to do this.");
         }
-        return $group->unacceptedFiles;
+        return $group->pendingFiles;
     }
 
     public function decideFileStatus($data)
