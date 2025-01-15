@@ -25,36 +25,43 @@ class File extends Model
                 'storage' => 'files',
                 'file_name_generator' => fn() => Str::random(30),
                 'operations' => [
-                        // 'compress',
+                    // 'compress',
                 ],
             ]
         ];
     }
 
-    public function creator(){
-        return $this->belongsTo(User::class,'creator_id');
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
-    public function parent(){
-        return $this->belongsTo(File::class,'parent_id');
+    public function parent()
+    {
+        return $this->belongsTo(File::class, 'parent_id');
     }
 
-    public function directChildren(){
-        return $this->hasMany(File::class,'parent_id');
+    public function directChildren()
+    {
+        return $this->hasMany(File::class, 'parent_id');
     }
-    public function groups(){
-        return $this->belongsToMany(Group::class,'group_files')
-        ->where('group_files.status', GroupFileStatusEnum::ACCEPTED);
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_files')
+            ->where('group_files.status', GroupFileStatusEnum::ACCEPTED);
     }
 
-    public function checkIns(){
+    public function checkIns()
+    {
         return $this->hasMany(CheckIn::class);
     }
-    public function activeCheckIns(){
+    public function activeCheckIns()
+    {
         return $this->hasMany(CheckIn::class)->whereNull('checked_out_at');
     }
 
-    public function histories(){
+    public function histories()
+    {
         return $this->hasMany(FileHistory::class)->orderByDesc('version');
     }
 }

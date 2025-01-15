@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RoleTypeEnum;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\FileHistoryController;
@@ -39,4 +40,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::feature('file-history', FileHistoryController::class);
     Route::get('files/{file}/report', [FileController::class, 'getFileReport']);
     Route::get('groups/{group}/report', [GroupController::class, 'getGroupReport']);
+    Route::middleware('ability:'.RoleTypeEnum::ADMIN->value)->get('users/{user}/report', [UserController::class, 'report']);
 });

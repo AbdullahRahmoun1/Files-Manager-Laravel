@@ -16,4 +16,7 @@ class GroupFile extends Model
     public function file(){
         return $this->belongsTo(File::class);
     }
+    public function group(){
+        return $this->belongsTo(Group::class);
+    }
 }
