@@ -66,8 +66,9 @@ class User extends Authenticatable
     public function groupeInvitations()
     {
         return $this->belongsToMany(Group::class, GroupUser::class)
-            ->where('invitation_expires_at', '>', now())
-            ->whereNull('joined_at');
+        ->where('invitation_expires_at', '>', now())
+        ->whereNull("refused_at")
+        ->whereNull('joined_at');
     }
 
     public function fcmTokens(){

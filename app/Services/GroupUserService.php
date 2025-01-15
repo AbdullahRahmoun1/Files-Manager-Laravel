@@ -15,9 +15,10 @@ class GroupUserService extends DotService
     }
     public function all()
     {
-        $loadRelations = ['group', 'user', 'inviter'];
-        $invitationsFromMe = GroupUser::invitations()->with($loadRelations)->where('inviter_id', request()->user()->id ?? 0)->get();
-        $invitationsToMe = request()->user()->groupeInvitations()->with($loadRelations)->get();
+        $loadRelations = ['group','user', 'inviter'];
+        $userId = request()->user()->id ?? 0;
+        $invitationsFromMe = GroupUser::invitations()->with($loadRelations)->where('inviter_id', $userId)->get();
+        $invitationsToMe = GroupUser::invitations()->with($loadRelations)->where('user_id',$userId)->get();
         return [
             'invitationsFromMe' => $invitationsFromMe,
             'invitationsToMe' => $invitationsToMe
