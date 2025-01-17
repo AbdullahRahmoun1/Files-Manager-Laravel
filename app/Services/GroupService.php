@@ -24,7 +24,7 @@ class GroupService extends DotService
     }
     public function dotAll($query = null)
     {
-        $query = request()->user()->groups()->with('files','members');
+        $query = request()->user()->groups()->with('files', 'members');
         return parent::dotAll($query);
     }
     public function dotShow($id)
@@ -34,7 +34,7 @@ class GroupService extends DotService
         }
 
         $model = parent::dotShow($id);
-        $model->load(['files','members']);
+        $model->load(['files', 'members']);
         return $model;
     }
     public function dotCreate($data)
@@ -51,18 +51,29 @@ class GroupService extends DotService
         return $group;
     }
 
-    public function kickUser(Group $group,User $user){
-        if($group->creator_id != request()->user()->id){
+    public function kickUser(Group $group, User $user)
+    {
+        if ($group->creator_id != request()->user()->id) {
             throwError("You don't have the permission to do this.");
         }
-        if($group->creator_id == $user->id){
+        if ($group->creator_id == $user->id) {
             throwError("Group owner can't be kicked out.");
         }
         $gUser = GroupUser::active()
-            ->where('user_id',$user->id)
-            ->where('group_id',$group->id)
+            ->where('user_id', $user->id)
+            ->where('group_id', $group->id)
             ->firstOrFail();
         $gUser->kicked_at = now();
         $gUser->save();
+        app('firebase')->send(
+            $gUser->user,
+            __('notifications.group.invitation.kicked.title'),
+            __(
+                'notifications.group.invitation.kicked.body',
+                [
+                    'groupName' => $gUser->group->name,
+                ]
+            ),
+        );
     }
 }

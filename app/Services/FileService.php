@@ -41,6 +41,31 @@ class FileService extends DotService
             app(FileHistoryService::class)
                 ->createVersion($fileModel, null, $fileModel->path);
         }
+        if ($isGroupOwner) {
+            app('firebase')->sendMultipleUsers(
+                $group->members,
+                __('notifications.group.file.created.title'),
+                __(
+                    'notifications.group.file.created.body',
+                    [
+                        'groupName' => $group->name,
+                        'fileName' => $fileModel->name,
+                    ]
+                ),
+            );
+        } else {
+            app('firebase')->sendMultipleUsers(
+                $group->members,
+                __('notifications.group.file.add-request.title'),
+                __(
+                    'notifications.group.file.add-request.body',
+                    [
+                        'groupName' => $group->name,
+                        'fileName' => $fileModel->name,
+                    ]
+                ),
+            );
+        }
         return [
             'message' => $isGroupOwner ? "Success." : "Success!, waiting for group admin's approval.",
             'file' => $fileModel
@@ -52,8 +77,19 @@ class FileService extends DotService
         $gFile = GroupFile::active()->where('file_id', $file->id)->firstOrFail();
         $gFile->removed_at = now();
         $gFile->save();
-        $file->deleted_at=now();
+        $file->deleted_at = now();
         $file->save();
+        app('firebase')->sendMultipleUsers(
+            $group->members,
+            __('notifications.group.file.removed.title'),
+            __(
+                'notifications.group.file.removed.body',
+                [
+                    'groupName' => $group->name,
+                    'fileName' => $file->name,
+                ]
+            ),
+        );
     }
 
     public function getChildren(File $file)
@@ -87,12 +123,41 @@ class FileService extends DotService
         $fileGroup->status = $data['status'];
         $fileGroup->decided_at = now();
         $fileGroup->save();
-    }
-    private function getReportLine($msg, $date, ...$metaData)
-    {
-        return [
-            'message' => $msg,
-            'date' => Carbon::parse($date)->toDateTimeString()
-        ];
+        if($data['status']==GroupFileStatusEnum::ACCEPTED->value){
+            app('firebase')->sendMultipleUsers(
+                $group->members,
+                __('notifications.group.file.created.title'),
+                __(
+                    'notifications.group.file.created.body',
+                    [
+                        'groupName' => $group->name,
+                        'fileName' => $fileGroup->file->name,
+                    ]
+                ),
+            );
+            app('firebase')->send(
+                $fileGroup->file->creator,
+                __('notifications.group.file.add-request-approved.title'),
+                __(
+                    'notifications.group.file.add-request-approved.body',
+                    [
+                        'groupName' => $group->name,
+                        'fileName' => $fileGroup->file->name,
+                    ]
+                ),
+            );
+        }else {
+            app('firebase')->send(
+                $fileGroup->file->creator,
+                __('notifications.group.file.add-request-rejected.title'),
+                __(
+                    'notifications.group.file.add-request-rejected.body',
+                    [
+                        'groupName' => $group->name,
+                        'fileName' => $fileGroup->file->name,
+                    ]
+                ),
+            );
+        }
     }
 }

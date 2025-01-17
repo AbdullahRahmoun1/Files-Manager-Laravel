@@ -17,9 +17,7 @@ Route::get('test', function () {
     );
 });
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('users/search', [UserController::class, 'dotAll']);
     Route::feature('groups', GroupController::class);
-    Route::delete('groups/{group}/users/{user}/kick', [GroupController::class, 'kickUser']);
     Route::prefix('group-invitations')
         ->controller(GroupUserController::class)
         ->group(function () {
@@ -28,11 +26,13 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('accept/{id}', 'acceptInvitation');
             Route::delete('delete/{id}', 'deleteInvitation');
         });
-    Route::feature('files', FileController::class);
-    Route::get('files/{file}/children', [FileController::class, 'getChildren']);
-    Route::delete('groups/{group}/files/{file}/remove', [FileController::class, 'removeFile']);
+    Route::delete('groups/{group}/users/{user}/kick', [GroupController::class, 'kickUser']);
     Route::get('groups/{group}/files-to-approve', [FileController::class, 'getPendingFiles']);
     Route::post('groups/files/decideStatus', [FileController::class, 'decideFileStatus']);
+    Route::delete('groups/{group}/files/{file}/remove', [FileController::class, 'removeFile']);
+    Route::get('users/search', [UserController::class, 'dotAll']);
+    Route::feature('files', FileController::class);
+    Route::get('files/{file}/children', [FileController::class, 'getChildren']);
     Route::controller(CheckInController::class)->group(function () {
         Route::post('files/{file_id}/check-in', 'checkIn');
         Route::post('files/{files_ids}/bulk-check-in', 'bulkCheckIn');

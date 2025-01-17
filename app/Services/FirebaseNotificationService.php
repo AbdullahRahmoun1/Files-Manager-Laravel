@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Services;
+
 use App\Models\User;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\HttpHandler\Guzzle6HttpHandler;
@@ -51,7 +53,7 @@ class FirebaseNotificationService
      * @param string $title
      * @param string $body
      */
-    public function sendPushNotificationSync(User $to, $title, $body)
+    private function sendPushNotificationSync(User $to, $title, $body)
     {
         // Generate access token for Firebase
         $access_token = $this->generateAccessToken();
@@ -85,6 +87,39 @@ class FirebaseNotificationService
                 }
             } catch (\Exception $e) {
                 Log::error('Error sending FCM notification: ' . $e->getMessage());
+            }
+        }
+    }
+
+    public function send(User $to, $title, $body)
+    {
+        dispatch(function () use ($to, $title, $body) {
+            self::sendPushNotificationSync($to, $title, $body);
+        });
+    }
+    public function sendMultipleUsers(array $users, $title, $body)
+    {
+        foreach ($users as $user) {
+            dispatch(function () use ($user, $title, $body) {
+                self::sendPushNotificationSync($user, $title, $body);
+            });
+        }
+    }
+    public function sendMultipleMessages(User $to, array $messages)
+    {
+        foreach ($messages as $message) {
+            dispatch(function () use ($to, $message) {
+                self::sendPushNotificationSync($to, $message['title'], $message['body']);
+            });
+        }
+    }
+    public function sendMultiple(array $users, array $messages)
+    {
+        foreach ($users as $to) {
+            foreach ($messages as $message) {
+                dispatch(function () use ($to, $message) {
+                    self::sendPushNotificationSync($to, $message['title'], $message['body']);
+                });
             }
         }
     }

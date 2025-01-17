@@ -15,10 +15,10 @@ class GroupUserService extends DotService
     }
     public function all()
     {
-        $loadRelations = ['group','user', 'inviter'];
+        $loadRelations = ['group', 'user', 'inviter'];
         $userId = request()->user()->id ?? 0;
         $invitationsFromMe = GroupUser::invitations()->with($loadRelations)->where('inviter_id', $userId)->get();
-        $invitationsToMe = GroupUser::invitations()->with($loadRelations)->where('user_id',$userId)->get();
+        $invitationsToMe = GroupUser::invitations()->with($loadRelations)->where('user_id', $userId)->get();
         return [
             'invitationsFromMe' => $invitationsFromMe,
             'invitationsToMe' => $invitationsToMe
@@ -39,7 +39,18 @@ class GroupUserService extends DotService
             throwError("The user is either already a member of this group or has a pending invitation.");
         }
         $data['inviter_id'] = $inviter->id;
-        return $this->dotCreate($data);
+        $model = $this->dotCreate($data);
+        app('firebase')->send(
+            $invitee,
+            __('notifications.group.invitation.received.title'),
+            __(
+                'notifications.group.invitation.received.body',
+                [
+                    'groupName' => $group->name
+                ]
+            ),
+        );
+        return $model;
     }
     public function acceptInvitation($id)
     {
@@ -49,7 +60,19 @@ class GroupUserService extends DotService
             throwError("Only the invitee can accept the invitation.");
         }
         $data = ['joined_at' => now()];
-        return $this->dotUpdate($id, $data);
+        $model = $this->dotUpdate($id, $data);
+        app('firebase')->send(
+            $groupUser->inviter,
+            __('notifications.group.invitation.accepted.title'),
+            __(
+                'notifications.group.invitation.accepted.body',
+                [
+                    'groupName' => $groupUser->group->name,
+                    'userName' => $groupUser->user->name,
+                ]
+            ),
+        );
+        return $model;
     }
 
     public function delete($id)
@@ -64,10 +87,21 @@ class GroupUserService extends DotService
         ) {
             throwError("You don't have the permission to do this");
         }
-        if($connectedUser->id == $invitee_id){
+        if ($connectedUser->id == $invitee_id) {
             $groupUser->refused_at = true;
             $groupUser->save();
-        }else{
+            app('firebase')->send(
+                $groupUser->inviter,
+                __('notifications.group.invitation.refused.title'),
+                __(
+                    'notifications.group.invitation.refused.body',
+                    [
+                        'groupName' => $groupUser->group->name,
+                        'userName' => $groupUser->user->name,
+                    ]
+                ),
+            );
+        } else {
             $groupUser->delete();
         }
     }
