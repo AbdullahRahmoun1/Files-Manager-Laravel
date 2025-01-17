@@ -52,7 +52,8 @@ class FileService extends DotService
         $gFile = GroupFile::active()->where('file_id', $file->id)->firstOrFail();
         $gFile->removed_at = now();
         $gFile->save();
-        $file->deleteFile('path');
+        $file->deleted_at=now();
+        $file->save();
     }
 
     public function getChildren(File $file)

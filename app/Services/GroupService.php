@@ -24,7 +24,7 @@ class GroupService extends DotService
     }
     public function dotAll($query = null)
     {
-        $query = request()->user()->groups()->with('files');
+        $query = request()->user()->groups()->with('files','members');
         return parent::dotAll($query);
     }
     public function dotShow($id)

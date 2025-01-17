@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\GroupFileStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Wever\Laradot\App\Traits\HasFiles;
 
 class File extends Model
@@ -43,7 +44,7 @@ class File extends Model
 
     public function directChildren()
     {
-        return $this->hasMany(File::class, 'parent_id');
+        return $this->hasMany(File::class, 'parent_id')->whereNull('deleted_at');
     }
     public function groups()
     {
