@@ -55,11 +55,13 @@ class FirebaseNotificationService
      */
     private function sendPushNotificationSync(User $to, $title, $body)
     {
+        if (empty($to->tokens)) return;
         // Generate access token for Firebase
         $access_token = $this->generateAccessToken();
         Log::info($access_token);
         // Retrieve the user's device details
         $tokens = $to->fcmTokens->pluck('fcm_token');
+        Log::info($tokens);
         // Define the FCM endpoint
         $fcmEndpoint = config('firebase.fcm_endpoint');
         foreach ($tokens as $token) {
@@ -94,14 +96,14 @@ class FirebaseNotificationService
     public function send(User $to, $title, $body)
     {
         dispatch(function () use ($to, $title, $body) {
-            self::sendPushNotificationSync($to, $title, $body);
+            $this->sendPushNotificationSync($to, $title, $body);
         });
     }
-    public function sendMultipleUsers(array $users, $title, $body)
+    public function sendMultipleUsers($users, $title, $body)
     {
         foreach ($users as $user) {
             dispatch(function () use ($user, $title, $body) {
-                self::sendPushNotificationSync($user, $title, $body);
+                $this->sendPushNotificationSync($user, $title, $body);
             });
         }
     }
@@ -109,16 +111,16 @@ class FirebaseNotificationService
     {
         foreach ($messages as $message) {
             dispatch(function () use ($to, $message) {
-                self::sendPushNotificationSync($to, $message['title'], $message['body']);
+                $this->sendPushNotificationSync($to, $message['title'], $message['body']);
             });
         }
     }
-    public function sendMultiple(array $users, array $messages)
+    public function sendMultiple($users, array $messages)
     {
         foreach ($users as $to) {
             foreach ($messages as $message) {
                 dispatch(function () use ($to, $message) {
-                    self::sendPushNotificationSync($to, $message['title'], $message['body']);
+                    $this->sendPushNotificationSync($to, $message['title'], $message['body']);
                 });
             }
         }
