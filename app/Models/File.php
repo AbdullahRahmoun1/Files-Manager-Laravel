@@ -19,6 +19,9 @@ class File extends Model
         'creator_id',
         'parent_id',
     ];
+    protected $with = [
+        'activeCheckin.user'
+    ];
     public function getFilesConfigurations(): array
     {
         return  [
@@ -65,5 +68,9 @@ class File extends Model
     public function histories()
     {
         return $this->hasMany(FileHistory::class)->orderByDesc('version');
+    }
+
+    public function activeCheckin(){
+        return $this->hasOne(CheckIn::class)->whereNull('checked_out_at');
     }
 }

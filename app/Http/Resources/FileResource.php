@@ -24,7 +24,8 @@ class FileResource extends JsonResource
             'parent' => FileResource::make($this->whenLoaded('parent')),
             'directChildren' => FileResource::collection($this->whenLoaded('directChildren')),
             'children' => FileResource::collection($this->whenLoaded('children')),
-            'date_time' => Carbon::parse($this->created_at)->toDateTimeString()
+            'date_time' => Carbon::parse($this->created_at)->toDateTimeString(),
+            'activeCheckin' => CheckInResource::make($this->whenLoaded('activeCheckin'))
         ];
     }
 }

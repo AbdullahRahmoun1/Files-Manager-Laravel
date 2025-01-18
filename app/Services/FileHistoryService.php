@@ -21,7 +21,7 @@ class FileHistoryService extends DotService
             'check_in_id' => $checkIn->id??null,
             'version' => $this->getNextVersion($file)
         ]);
-        if($lastHistory){
+        if($lastHistory->path??false){
             dispatch(function()use($history,$lastHistory){
                 $diffString = app(FileComparisonService::class)->compare(
                     $lastHistory->path,

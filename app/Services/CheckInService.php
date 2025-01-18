@@ -92,6 +92,7 @@ class CheckInService extends DotService
         $model = $this->dotUpdate($checkIn, [
             'checked_out_at' => now()
         ]);
+        $model->load(['file']);
         $group = $file->groups()->first();
         app('firebase')->sendMultipleUsers(
             $group->members,

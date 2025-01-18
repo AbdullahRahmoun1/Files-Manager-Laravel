@@ -16,7 +16,9 @@ class CheckInResource extends JsonResource
             'file_id' => $this->file_id,
             'user_id' => $this->user_id,
             'checked_in_at' => $this->checked_in_at,
-            'checked_in_out' => $this->checked_out_at,
+            'checked_out_at' => $this->checked_out_at,
+            'user' => UserResource::make($this->whenLoaded('user')),
+            'file' => FileResource::make($this->whenLoaded('file'))
         ];
     }
 }

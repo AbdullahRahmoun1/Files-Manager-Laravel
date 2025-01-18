@@ -25,8 +25,8 @@ class CheckInController extends DotController
         return self::success(CheckInResource::make($data));
     }
     public function checkOut($file_id){
-        $this->service->checkOut($file_id);
-        return self::success();
+        $model=$this->service->checkOut($file_id);
+        return self::success(CheckInResource::make($model));
     }
 
     public function bulkCheckIn($files_ids){
