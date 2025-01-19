@@ -70,4 +70,8 @@ class FileController extends DotController
     {
         return self::success($this->service->removeFile($group, $file));
     }
+
+    public function downloadFile(File $file){
+        return $this->service->downloadFile($file);
+    }
 }

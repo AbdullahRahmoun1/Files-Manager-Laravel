@@ -8,6 +8,7 @@ use App\Models\File;
 use App\Models\Group;
 use App\Models\GroupFile;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\MockObject\ReturnValueGenerator;
 
 class FileService extends DotService
@@ -15,6 +16,12 @@ class FileService extends DotService
     public function __construct(File $file)
     {
         parent::__construct(File::class);
+    }
+
+    public function downloadFile(File $file){
+        $user = request()->user();
+        //validate user can access file
+        return response()->download(Storage::disk('public')->path($file->path));
     }
 
     public function dotCreate($data)
