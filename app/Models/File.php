@@ -6,6 +6,7 @@ use App\Enums\GroupFileStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Str;
 use Wever\Laradot\App\Traits\HasFiles;
 
 class File extends Model
