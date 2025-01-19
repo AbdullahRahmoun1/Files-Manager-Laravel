@@ -19,7 +19,7 @@ class FileReportService
     public function getCreationRelated(File $file)
     {
         $fileOrFolder = $file->path == null ? "Folder" : "File";
-        return $this->getReportLine("$fileOrFolder created.", $file->created_at);
+        return $this->getReportLine("$fileOrFolder created.", $file->created_at,'create');
     }
 
     public function getCheckInOutRelated(File $file, $withInfo = false,$user_id=null)
@@ -36,7 +36,7 @@ class FileReportService
             if ($withInfo) {
                 $checkInMessage .= " File: $file->name.";
             }
-            $checkInOutReports[] = $this->getReportLine($checkInMessage, $checkIn->checked_in_at);
+            $checkInOutReports[] = $this->getReportLine($checkInMessage, $checkIn->checked_in_at,'check-in');
 
             // Check-out report line (if exists)
             if ($checkIn->checked_out_at) {
@@ -50,17 +50,18 @@ class FileReportService
                 if ($withInfo) {
                     $checkOutMessage .= " File: $file->name.";
                 }
-                $checkInOutReports[] = $this->getReportLine($checkOutMessage, $checkIn->checked_out_at);
+                $checkInOutReports[] = $this->getReportLine($checkOutMessage, $checkIn->checked_out_at,'check-out');
             }
         }
         return $checkInOutReports;
     }
 
-    private function getReportLine($msg, $date)
+    private function getReportLine($msg, $date,$operation)
     {
         return [
             'message' => $msg,
-            'date' => Carbon::parse($date)->toDateTimeString()
+            'date' => Carbon::parse($date)->toDateTimeString(),
+            'operation' => $operation
         ];
     }
 }

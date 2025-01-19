@@ -11,6 +11,7 @@ use App\Models\File;
 use App\Models\Group;
 use App\Services\FileReportService;
 use App\Services\FileService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class FileController extends DotController
@@ -55,8 +56,20 @@ class FileController extends DotController
 
     public function getFileReport(File $file){
         $reportService = app(FileReportService::class);
+        $result = $reportService->getFileReport($file);
+        if(request('pdf')??null){
+            $pdfData = [
+                'name' => "file",
+                'status' => "status",
+                'userName' => "username",
+                'groupName' => "groupName",
+                'fileLogs' => $result
+            ];
+            $pdf = Pdf::loadView('file_report_template', ['data' => $pdfData]);
+            return $pdf->download();
+        }
         return $this->success(
-            $reportService->getFileReport($file)
+            $result
         );
     }
 
