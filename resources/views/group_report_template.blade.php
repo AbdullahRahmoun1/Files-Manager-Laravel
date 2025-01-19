@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>File Report</title>
+    <title>Group Report</title>
     <style>
         body { font-family: 'Arial', sans-serif; }
         table { width: 100%; border-collapse: collapse; }
@@ -11,26 +11,23 @@
 </head>
 <body>
     <h1>Report for {{ $data['name'] ?? 'N/A' }}</h1>
-    <p>Current version: {{ $data['current_version'] ?? 'N/A' }}</p>
-    <p>Uploaded by: {{ $data['created_by'] ?? 'N/A' }}</p>
-    <p>Group: {{ $data['groupName'] ?? 'N/A' }}</p>
+    <p>Group Admin: {{ $data['group_admin'] ?? 'N/A' }}</p>
+    <p>Created At: {{ $data['created_at'] ?? 'N/A' }}</p>
 
-    <h2>File Operations</h2>
+    <h2>Group Events</h2>
     <table>
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Operation</th>
-                <th>User</th>
+                <th>event</th>
             </tr>
         </thead>
         <tbody>
-            @if (!empty($data['fileLogs']))
-                @foreach ($data['fileLogs'] as $log)
+            @if (!empty($data['logs']))
+                @foreach ($data['logs'] as $log)
                     <tr>
                         <td>{{ $log['date'] ?? 'N/A' }}</td>
-                        <td>{{ $log['operation'] ?? 'N/A' }}</td>
-                        <td>{{ $log['user'] ?? 'N/A' }}</td>
+                        <td>{{ $log['message'] ?? 'N/A' }}</td>
                     </tr>
                 @endforeach
             @else

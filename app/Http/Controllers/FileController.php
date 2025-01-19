@@ -54,26 +54,20 @@ class FileController extends DotController
         return $this->success();
     }
 
-    public function getFileReport(File $file){
+    public function getFileReport(File $file)
+    {
         $reportService = app(FileReportService::class);
-        $result = $reportService->getFileReport($file);
-        if(request('pdf')??null){
-            $pdfData = [
-                'name' => "file",
-                'status' => "status",
-                'userName' => "username",
-                'groupName' => "groupName",
-                'fileLogs' => $result
-            ];
-            $pdf = Pdf::loadView('file_report_template', ['data' => $pdfData]);
-            return $pdf->download();
+        if (request('pdf') ?? null) {
+            return $reportService->getPdfFileReport($file);
+        } else {
+            return $this->success(
+                $reportService->getFileReport($file)
+            );
         }
-        return $this->success(
-            $result
-        );
     }
 
-    public function removeFile(Group $group,File $file){
-        return self::success($this->service->removeFile($group,$file));
+    public function removeFile(Group $group, File $file)
+    {
+        return self::success($this->service->removeFile($group, $file));
     }
 }

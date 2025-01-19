@@ -25,9 +25,14 @@ class GroupController extends DotController
 
     public function getGroupReport(Group $group){
         $reportService = app(GroupReportService::class);
-        return $this->success(
-            $reportService->getReport($group,request('user_id')??null)
-        );
+        $user_id = request('user_id')??null;
+        if (request('pdf') ?? null) {
+            return $reportService->getPdfReport($group,$user_id);
+        } else {
+            return $this->success(
+                $reportService->getReport($group,$user_id)
+            );
+        }
     }
 
     public function kickUser(Group $group,User $user){

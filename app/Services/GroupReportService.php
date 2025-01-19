@@ -7,6 +7,7 @@ use App\Models\GroupFile;
 use App\Models\GroupUser;
 use App\Models\File;
 use App\Enums\GroupFileStatusEnum;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 class GroupReportService
@@ -23,34 +24,47 @@ class GroupReportService
         $user = request()->user();
         return $user->id == $group->creator_id;
     }
-    public function getReport(Group $group,$user_id=null)
+    public function getReport(Group $group, $user_id = null)
     {
-        if($user_id && !$this->canFilter($group)){
+        if ($user_id && !$this->canFilter($group)) {
             throwError("Only admin can filter the report based on user.");
         }
-        $include =$this->extractIncludeParams()?? [
+        $include = $this->extractIncludeParams() ?? [
             'creation_related' => true,
             'file_management_related' => true,
             'check_inNout_related' => true,
             'member_management_related' => true,
         ];
         $reports = [];
-        if ($include['creation_related']??false) {
+        if ($include['creation_related'] ?? false) {
             $reports[] = $this->getCreationRelated($group);
         }
-        if ($include['file_management_related']??false) {
+        if ($include['file_management_related'] ?? false) {
             $reports = array_merge($reports, $this->getFilesManagementRelated($group));
         }
-        if ($include['check_inNout_related']??false) {
-            $reports = array_merge($reports, $this->getCheckInOutRelated($group,$user_id));
+        if ($include['check_inNout_related'] ?? false) {
+            $reports = array_merge($reports, $this->getCheckInOutRelated($group, $user_id));
         }
-        if ($include['member_management_related']??false) {
+        if ($include['member_management_related'] ?? false) {
             $reports = array_merge($reports, $this->getMembersManagementRelated($group));
         }
         usort($reports, function ($a, $b) {
             return strtotime($b['date']) - strtotime($a['date']);
         });
         return $reports;
+    }
+
+    public function getPdfReport(Group $group,$user_id =null)
+    {
+        $result = $this->getReport($group,$user_id);
+        $pdfData = [
+            'name' => $group->name,
+            'group_admin' => $group->creator->name,
+            'created_at' => Carbon::parse($group->created_at)->format('Y-m-d h:i A'),
+            'logs' => $result
+        ];
+        $pdf = Pdf::loadView('group_report_template', ['data' => $pdfData]);
+        return $pdf->download();
     }
 
     public function extractIncludeParams()
@@ -64,7 +78,7 @@ class GroupReportService
                 return [$newKey => $value];
             })
             ->toArray();
-        return empty($includeParams)?null:$includeParams;
+        return empty($includeParams) ? null : $includeParams;
     }
 
     private function getCreationRelated(Group $group)
@@ -106,13 +120,13 @@ class GroupReportService
         return $reports;
     }
 
-    private function getCheckInOutRelated(Group $group,$user_id=null)
+    private function getCheckInOutRelated(Group $group, $user_id = null)
     {
         $reports = [];
         $groupFiles = GroupFile::where('group_id', $group->id)->pluck('file_id');
         $files = File::whereIn('id', $groupFiles)->get();
         foreach ($files as $file) {
-            $reports = array_merge($reports, $this->fileReportService->getCheckInOutRelated($file, true,$user_id));
+            $reports = array_merge($reports, $this->fileReportService->getCheckInOutRelated($file, true, $user_id));
         }
 
         return $reports;
@@ -172,7 +186,7 @@ class GroupReportService
     {
         return [
             'message' => $msg,
-            'date' => Carbon::parse($date)->toDateTimeString()
+            'date' => Carbon::parse($date)->format('Y-m-d h:i A')
         ];
     }
 }
