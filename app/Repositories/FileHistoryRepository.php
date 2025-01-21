@@ -3,13 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\FileHistory;
-use App\Models\User;
+use Wever\Laradot\App\Repositories\DotRepository;
 
-class FileHistoryRepository extends BaseRepository
+class FileHistoryRepository extends DotRepository
 {
     public function __construct()
     {
-        parent::__construct(FileHistory::class);
+        parent::__construct(app(FileHistory::class));
     }
 
 }

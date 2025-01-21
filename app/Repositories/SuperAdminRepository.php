@@ -3,13 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\SuperAdmin;
-use App\Models\User;
+use Wever\Laradot\App\Repositories\DotRepository;
 
-class SuperAdminRepository extends BaseRepository
+class SuperAdminRepository extends DotRepository
 {
     public function __construct()
     {
-        parent::__construct(SuperAdmin::class);
+        parent::__construct(app(SuperAdmin::class));
     }
 
 }

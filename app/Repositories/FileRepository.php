@@ -3,12 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\File;
+use Wever\Laradot\App\Repositories\DotRepository;
 
-class FileRepository extends BaseRepository
+class FileRepository extends DotRepository
 {
     public function __construct()
     {
-        parent::__construct(File::class);
+        parent::__construct(app(File::class));
     }
 
 }

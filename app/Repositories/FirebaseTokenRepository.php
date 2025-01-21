@@ -3,12 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\FirebaseToken;
+use Wever\Laradot\App\Repositories\DotRepository;
 
-class FirebaseTokenRepository extends BaseRepository
+class FirebaseTokenRepository extends DotRepository
 {
     public function __construct()
     {
-        parent::__construct(FirebaseToken::class);
+        parent::__construct(app(FirebaseToken::class));
     }
 
 }

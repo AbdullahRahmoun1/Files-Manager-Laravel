@@ -3,12 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Wever\Laradot\App\Repositories\DotRepository;
 
-class UserRepository extends BaseRepository
+class UserRepository extends DotRepository
 {
     public function __construct()
     {
-        parent::__construct(User::class);
+        parent::__construct(app(User::class));
     }
 
 }

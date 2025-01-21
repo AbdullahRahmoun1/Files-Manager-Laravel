@@ -3,12 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\GroupUser;
+use Wever\Laradot\App\Repositories\DotRepository;
 
-class GroupUserRepository extends BaseRepository
+class GroupUserRepository extends DotRepository
 {
     public function __construct()
     {
-        parent::__construct(GroupUser::class);
+        parent::__construct(app(GroupUser::class));
     }
 
 }
