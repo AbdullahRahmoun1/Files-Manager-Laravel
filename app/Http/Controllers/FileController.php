@@ -76,10 +76,10 @@ class FileController extends DotController
         return $this->service->downloadFile($file);
     }
 
-    public function renameFolder(File $file)
+    public function rename(File $file)
     {
         return self::success(
-            FileResource::make($this->service->renameFolder($file, request('name')))
+            FileResource::make($this->service->rename($file, request('name')))
         );
     }
 }

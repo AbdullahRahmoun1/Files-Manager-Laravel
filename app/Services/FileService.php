@@ -171,10 +171,7 @@ class FileService extends DotService
         }
     }
 
-    public function renameFolder(File $file,$name){
-        if($file->path){
-            throwError("You can only rename folders.");
-        }
+    public function rename(File $file,$name){
         if(!$name){
             throwError("Name is required.");
         }
