@@ -2,14 +2,10 @@
 
 namespace App\Services;
 
-use App\Enums\GroupFileStatusEnum;
-use App\Models\File;
 use Wever\Laradot\App\Services\DotService;
 use App\Models\Group;
-use App\Models\GroupFile;
 use App\Models\GroupUser;
 use App\Models\User;
-use Carbon\Carbon;
 
 class GroupService extends DotService
 {
@@ -72,6 +68,29 @@ class GroupService extends DotService
                 'notifications.group.invitation.kicked.body',
                 [
                     'groupName' => $gUser->group->name,
+                ]
+            ),
+        );
+    }
+    public function leaveGroup(Group $group, User $user)
+    {
+        if ($group->creator_id == $user->id) {
+            throwError("Group owner can't leave the group, delete it instead.");
+        }
+        $gUser = GroupUser::active()
+            ->where('user_id', $user->id)
+            ->where('group_id', $group->id)
+            ->firstOrFail();
+        $gUser->left_at = now();
+        $gUser->save();
+        app('firebase')->send(
+            $gUser->user,
+            __('notifications.group.invitation.left.title'),
+            __(
+                'notifications.group.invitation.left.body',
+                [
+                    'groupName' => $gUser->group->name,
+                    'userName' => $user->name
                 ]
             ),
         );

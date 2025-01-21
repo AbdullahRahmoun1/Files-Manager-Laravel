@@ -166,6 +166,13 @@ class GroupReportService
                 );
             }
 
+            if ($gUser->left_at) {
+                $reports[] = $this->getReportLine(
+                    "User '{$gUser->user->name}' left the group.",
+                    $gUser->left_at
+                );
+            }
+
             if (
                 $gUser->invitation_expires_at &&
                 !$gUser->joined_at &&

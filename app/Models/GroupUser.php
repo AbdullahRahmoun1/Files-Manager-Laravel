@@ -24,7 +24,8 @@ class GroupUser extends Model
     public function scopeActive(){
         return $this
         ->whereNotNull('joined_at')
-        ->whereNull("kicked_at");
+        ->whereNull('kicked_at')
+        ->whereNull("left_at");
     }
     public function inviter(){
         return $this->belongsTo(User::class,'inviter_id');

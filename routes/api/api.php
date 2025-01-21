@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('delete/{id}', 'deleteInvitation');
         });
     Route::delete('groups/{group}/users/{user}/kick', [GroupController::class, 'kickUser']);
+    Route::delete('groups/{group}/leave', [GroupController::class, 'leaveGroup']);
     Route::get('groups/{group}/files-to-approve', [FileController::class, 'getPendingFiles']);
     Route::post('groups/files/decideStatus', [FileController::class, 'decideFileStatus']);
     Route::delete('groups/{group}/files/{file}/remove', [FileController::class, 'removeFile']);

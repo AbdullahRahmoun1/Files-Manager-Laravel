@@ -33,6 +33,7 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'group_users')
             ->whereNull('kicked_at')
+            ->whereNull('left_at')
             ->whereNotNull('joined_at');
     }
     public function pendingFiles()
