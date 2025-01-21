@@ -81,6 +81,9 @@ class FileService extends DotService
 
     public function removeFile(Group $group, File $file)
     {
+        if(request()->user()->id != $group->creator_id){
+            throwError("Only group admin can remove files/folders.");
+        }
         $gFile = GroupFile::active()->where('file_id', $file->id)->firstOrFail();
         $gFile->removed_at = now();
         $gFile->save();
@@ -166,5 +169,17 @@ class FileService extends DotService
                 ),
             );
         }
+    }
+
+    public function renameFolder(File $file,$name){
+        if($file->path){
+            throwError("You can only rename folders.");
+        }
+        if(!$name){
+            throwError("Name is required.");
+        }
+        $file->name = request('name');
+        $file->save();
+        return $file;
     }
 }

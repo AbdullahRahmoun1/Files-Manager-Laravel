@@ -20,12 +20,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('delete/{id}', 'deleteInvitation');
         });
     Route::delete('groups/{group}/users/{user}/kick', [GroupController::class, 'kickUser']);
+    Route::delete('groups/{group}/leave', [GroupController::class, 'leaveGroup']);
     Route::get('groups/{group}/files-to-approve', [FileController::class, 'getPendingFiles']);
     Route::post('groups/files/decideStatus', [FileController::class, 'decideFileStatus']);
     Route::delete('groups/{group}/files/{file}/remove', [FileController::class, 'removeFile']);
     Route::get('users/search', [UserController::class, 'dotAll']);
     Route::feature('files', FileController::class);
     Route::get('files/{file}/download', [FileController::class,'downloadFile']);
+    Route::post('files/{file}/rename-folder', [FileController::class,'renameFolder']);
     Route::get('files/{file}/children', [FileController::class, 'getChildren']);
     Route::controller(CheckInController::class)->group(function () {
         Route::post('files/{file_id}/check-in', 'checkIn');

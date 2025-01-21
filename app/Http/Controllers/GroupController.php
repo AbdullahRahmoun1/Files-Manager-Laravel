@@ -39,4 +39,9 @@ class GroupController extends DotController
         $this->service->kickUser($group,$user);
         return self::success();
     }
+
+    public function leaveGroup(Group $group){
+        $this->service->leaveGroup($group,request()->user());
+        return self::success();
+    }
 }

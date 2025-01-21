@@ -25,14 +25,24 @@ class Group extends Model
     public function files()
     {
         return $this->belongsToMany(File::class, 'group_files')
-            ->where('group_files.status', GroupFileStatusEnum::ACCEPTED)
-            ->whereNull('group_files.removed_at');
+            ->withPivot(['status', 'removed_at']) // Ensure pivot fields are loaded
+            ->wherePivot('status', GroupFileStatusEnum::ACCEPTED) // Filter by pivot field
+            ->wherePivot('removed_at', null) // Filter by pivot field
+            ->whereNull('files.parent_id'); // Filter by `files` table column
+    }
+    public function allFiles()
+    {
+        return $this->belongsToMany(File::class, 'group_files')
+            ->withPivot(['status', 'removed_at']) // Ensure pivot fields are loaded
+            ->wherePivot('status', GroupFileStatusEnum::ACCEPTED) // Filter by pivot field
+            ->wherePivot('removed_at', null); // Filter by pivot field
     }
 
     public function members()
     {
         return $this->belongsToMany(User::class, 'group_users')
             ->whereNull('kicked_at')
+            ->whereNull('left_at')
             ->whereNotNull('joined_at');
     }
     public function pendingFiles()

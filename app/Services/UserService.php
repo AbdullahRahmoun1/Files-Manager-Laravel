@@ -10,6 +10,8 @@ use App\Models\GroupUser;
 use Wever\Laradot\App\Services\DotService;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class UserService extends DotService
 {
@@ -141,5 +143,16 @@ class UserService extends DotService
             'date' => Carbon::parse($date)->toDateTimeString(),
             'type' => $type
         ];
+    }
+
+    public function checkOutAllGroupFiles(User $user,Group $group){
+        $checkInService = app(CheckInService::class);
+        foreach($group->files()->pluck('group_files.file_id') as $file){
+            try{
+                $checkInService->checkOut($file,$user);
+            }catch(Exception $e){
+                Log::error($e->getMessage());
+            }
+        }
     }
 }

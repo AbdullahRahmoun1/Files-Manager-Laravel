@@ -12,10 +12,18 @@ class FileRules extends BaseRules
     {
         return array_merge(
             [
-                'name' => ['string','between:1,255',],
-                'parent_id' => [Rule::exists('files','id')->whereNull('path')]
+                'name' => ['string', 'between:1,255',],
+                'parent_id' => [Rule::exists('files', 'id')->whereNull('path')],
+                'path' => [
+                    'file',
+                    function ($attribute, $value, $fail) {
+                        $mimeType = $value->getMimeType();
+                        if (str_starts_with($mimeType, 'image/') || str_starts_with($mimeType, 'video/')) {
+                            $fail("The $attribute must not be an image or video.");
+                        }
+                    },
+                ]
             ],
-            app(File::class)->getAllFieldsRules()
         );
     }
     protected function defineMessages(): array

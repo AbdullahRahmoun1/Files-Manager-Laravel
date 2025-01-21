@@ -27,7 +27,7 @@ class GroupReportService
     public function getReport(Group $group, $user_id = null)
     {
         if ($user_id && !$this->canFilter($group)) {
-            throwError("Only admin can filter the report based on user.");
+            throwError("Only group admin can filter the report based on user.");
         }
         $include = $this->extractIncludeParams() ?? [
             'creation_related' => true,
@@ -163,6 +163,13 @@ class GroupReportService
                 $reports[] = $this->getReportLine(
                     "User '{$gUser->user->name}' got kicked out from the group by group owner.",
                     $gUser->kicked_at
+                );
+            }
+
+            if ($gUser->left_at) {
+                $reports[] = $this->getReportLine(
+                    "User '{$gUser->user->name}' left the group.",
+                    $gUser->left_at
                 );
             }
 

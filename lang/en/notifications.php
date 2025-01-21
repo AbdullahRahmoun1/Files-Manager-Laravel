@@ -19,6 +19,10 @@ return [
                 'title' => 'Removed from Group',
                 'message' => 'You have been removed from the group ":groupName" by group admin.',
             ],
+            'left' => [
+                'title' => 'User Left Group',
+                'message' => ':userName has left the group ":groupName".',
+            ],
         ],
         'file' => [
             'check-in' => [

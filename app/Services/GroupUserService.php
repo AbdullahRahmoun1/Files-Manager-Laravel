@@ -88,7 +88,7 @@ class GroupUserService extends DotService
             throwError("You don't have the permission to do this");
         }
         if ($connectedUser->id == $invitee_id) {
-            $groupUser->refused_at = true;
+            $groupUser->refused_at = now();
             $groupUser->save();
             app('firebase')->send(
                 $groupUser->inviter,
