@@ -61,6 +61,7 @@ class GroupService extends DotService
             ->firstOrFail();
         $gUser->kicked_at = now();
         $gUser->save();
+        app(UserService::class)->checkOutAllGroupFiles($user,$group);
         app('firebase')->send(
             $gUser->user,
             __('notifications.group.invitation.kicked.title'),
@@ -83,6 +84,7 @@ class GroupService extends DotService
             ->firstOrFail();
         $gUser->left_at = now();
         $gUser->save();
+        app(UserService::class)->checkOutAllGroupFiles($user,$group);
         app('firebase')->send(
             $gUser->user,
             __('notifications.group.invitation.left.title'),

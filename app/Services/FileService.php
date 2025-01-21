@@ -81,6 +81,9 @@ class FileService extends DotService
 
     public function removeFile(Group $group, File $file)
     {
+        if(request()->user()->id != $group->creator_id){
+            throwError("Only group admin can remove files/folders.");
+        }
         $gFile = GroupFile::active()->where('file_id', $file->id)->firstOrFail();
         $gFile->removed_at = now();
         $gFile->save();

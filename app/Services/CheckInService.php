@@ -67,10 +67,10 @@ class CheckInService extends DotService
         }
         return $result;
     }
-    public function checkOut($file_id)
+    public function checkOut($file_id,$user=null)
     {
         $file = File::findOrFail($file_id);
-        $user = request()->user();
+        $user??= request()->user();
         $checkIn = $file->activeCheckIns()->where('user_id', $user->id)->first();
         if (!$checkIn) {
             throwError("You can't check-out when you didn't check-in.");

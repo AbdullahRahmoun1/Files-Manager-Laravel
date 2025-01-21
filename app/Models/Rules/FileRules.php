@@ -13,7 +13,7 @@ class FileRules extends BaseRules
         return array_merge(
             [
                 'name' => ['string','between:1,255',],
-                'parent_id' => [Rule::exists('files','id')->whereNull('path')]
+                'parent_id' => [Rule::exists('files','id')->whereNull('path')],
             ],
             app(File::class)->getAllFieldsRules()
         );
