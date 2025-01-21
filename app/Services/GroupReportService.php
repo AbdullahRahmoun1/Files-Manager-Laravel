@@ -27,7 +27,7 @@ class GroupReportService
     public function getReport(Group $group, $user_id = null)
     {
         if ($user_id && !$this->canFilter($group)) {
-            throwError("Only admin can filter the report based on user.");
+            throwError("Only group admin can filter the report based on user.");
         }
         $include = $this->extractIncludeParams() ?? [
             'creation_related' => true,
