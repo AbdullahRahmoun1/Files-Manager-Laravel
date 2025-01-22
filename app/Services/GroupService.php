@@ -2,99 +2,83 @@
 
 namespace App\Services;
 
-use Wever\Laradot\App\Services\DotService;
+use App\Repositories\GroupRepository;
+use App\Repositories\GroupUserRepository;
 use App\Models\Group;
-use App\Models\GroupUser;
 use App\Models\User;
 
-class GroupService extends DotService
+class GroupService
 {
-    public function __construct()
+    protected $groupRepo;
+    protected $groupUserRepo;
+
+    public function __construct(GroupRepository $groupRepo, GroupUserRepository $groupUserRepo)
     {
-        parent::__construct(Group::class);
+        $this->groupRepo = $groupRepo;
+        $this->groupUserRepo = $groupUserRepo;
     }
-    public function dotIndex($query = null)
+
+    public function getUserGroupsWithFiles()
     {
-        $query = request()->user()->groups()->with('files');
-        return parent::dotIndex($query);
+        $userId = request()->user()->id;
+        return $this->groupRepo->getUserGroupsWithFiles($userId);
     }
-    public function dotAll($query = null)
+
+    public function getUserGroupsWithFilesAndMembers()
     {
-        $query = request()->user()->groups()->with('files', 'members');
-        return parent::dotAll($query);
+        $userId = request()->user()->id;
+        return $this->groupRepo->getUserGroupsWithFilesAndMembers($userId);
     }
-    public function dotShow($id)
+
+    public function showGroup($id)
     {
-        if (!request()->user()->groups()->where('groups.id', $id)->exists()) {
+        $userId = request()->user()->id;
+        if (!$this->groupRepo->isUserInGroup($id, $userId)) {
             throwError("You don't have the permission to view this group.");
         }
-
-        $model = parent::dotShow($id);
-        $model->load(['files', 'members']);
-        return $model;
+        return $this->groupRepo->findByIdWithRelations($id, ['files', 'members']);
     }
-    public function dotCreate($data)
+
+    public function createGroup($data)
     {
-        if (!request()->user()) {
-            throwError("Couldn't find creator id");
-        }
-        $data['creator_id'] = request()->user()->id;
-        $group = parent::dotCreate($data);
-        request()->user()->groups()->attach($group->id, [
-            'joined_at' => now(),
-            'inviter_id' => request()->user()->id
-        ]);
+        $user = request()->user();
+        $data['creator_id'] = $user->id;
+        $group = $this->groupRepo->create($data);
+        $this->groupUserRepo->attachUserToGroup($group->id, $user->id, $user->id);
         return $group;
     }
 
     public function kickUser(Group $group, User $user)
     {
-        if ($group->creator_id != request()->user()->id) {
+        $currentUser = request()->user();
+        if ($group->creator_id != $currentUser->id) {
             throwError("You don't have the permission to do this.");
         }
         if ($group->creator_id == $user->id) {
             throwError("Group owner can't be kicked out.");
         }
-        $gUser = GroupUser::active()
-            ->where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->firstOrFail();
-        $gUser->kicked_at = now();
-        $gUser->save();
-        app(UserService::class)->checkOutAllGroupFiles($user,$group);
+        $membership = $this->groupUserRepo->findActiveMembership($group->id, $user->id);
+        $this->groupUserRepo->saveKickedStatus($membership);
+
         app('firebase')->send(
-            $gUser->user,
+            $user,
             __('notifications.group.invitation.kicked.title'),
-            __(
-                'notifications.group.invitation.kicked.body',
-                [
-                    'groupName' => $gUser->group->name,
-                ]
-            ),
+            __('notifications.group.invitation.kicked.body', ['groupName' => $group->name])
         );
     }
+
     public function leaveGroup(Group $group, User $user)
     {
         if ($group->creator_id == $user->id) {
             throwError("Group owner can't leave the group, delete it instead.");
         }
-        $gUser = GroupUser::active()
-            ->where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->firstOrFail();
-        $gUser->left_at = now();
-        $gUser->save();
-        app(UserService::class)->checkOutAllGroupFiles($user,$group);
+        $membership = $this->groupUserRepo->findActiveMembership($group->id, $user->id);
+        $this->groupUserRepo->saveLeftStatus($membership);
+
         app('firebase')->send(
-            $gUser->user,
+            $user,
             __('notifications.group.invitation.left.title'),
-            __(
-                'notifications.group.invitation.left.body',
-                [
-                    'groupName' => $gUser->group->name,
-                    'userName' => $user->name
-                ]
-            ),
+            __('notifications.group.invitation.left.body', ['groupName' => $group->name])
         );
     }
 }

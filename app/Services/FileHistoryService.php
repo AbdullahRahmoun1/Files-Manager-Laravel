@@ -2,46 +2,57 @@
 
 namespace App\Services;
 
-use App\Models\CheckIn;
 use App\Models\File;
+use App\Models\CheckIn;
+use App\Repositories\FileHistoryRepository;
 use Wever\Laradot\App\Services\DotService;
-use App\Models\FileHistory;
 
 class FileHistoryService extends DotService
 {
-    public function __construct()
+    protected $fileHistoryRepository;
+
+    public function __construct(FileHistoryRepository $fileHistoryRepository)
     {
-        parent::__construct(FileHistory::class);
+        parent::__construct($fileHistoryRepository->getModel());
+        $this->fileHistoryRepository = $fileHistoryRepository;
     }
-    public function createVersion(File $file,CheckIn|null $checkIn,$path){
-        $lastHistory = $file->histories()->first();
-        $history = $this->dotCreate([
-            'path' => $path,
-            'file_id' =>$file->id,
-            'check_in_id' => $checkIn->id??null,
-            'version' => $this->getNextVersion($file)
-        ]);
-        if($lastHistory->path??false){
-            dispatch(function()use($history,$lastHistory){
+
+    public function createVersion(File $file, ?CheckIn $checkIn, string $path)
+    {
+        $lastHistory = $this->fileHistoryRepository->getLastHistory($file);
+
+        $history = $this->fileHistoryRepository->createHistory(
+            $file,
+            $checkIn,
+            $path,
+            $this->getNextVersion($file)
+        );
+
+        if ($lastHistory && $lastHistory->path) {
+            dispatch(function () use ($history, $lastHistory) {
                 $diffString = app(FileComparisonService::class)->compare(
                     $lastHistory->path,
-                    $history->path,
+                    $history->path
                 );
-                $history->comparison = $diffString;
-                $history->save();
+
+                $this->fileHistoryRepository->updateComparison($history, $diffString);
             });
         }
-    }
-    public function getNextVersion(File $file){
-        $oldVersion = $file->histories()->first()->version??0.9;
-        return $oldVersion+0.1;
+
+        return $history;
     }
 
-    public function dotShow($id,$query=null){
+    public function getNextVersion(File $file)
+    {
+        $lastHistory = $this->fileHistoryRepository->getLastHistory($file);
+        $oldVersion = $lastHistory->version ?? 0.9;
+        return round($oldVersion + 0.1, 1);
+    }
+
+    public function dotShow($id, $query = null)
+    {
         $model = parent::dotShow($id);
-        $model->load(['file','checkIn']);
+        $model->load(['file', 'checkIn']);
         return $model;
     }
-
 }
-

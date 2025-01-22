@@ -16,7 +16,7 @@ class FileHistory extends Model
         'version',
         'check_in_id',
         'file_id',
-        'comparison_path'
+        'comparison'
     ];
 
     public $filterable= [

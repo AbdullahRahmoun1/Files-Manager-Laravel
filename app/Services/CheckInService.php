@@ -1,110 +1,112 @@
 <?php
-
 namespace App\Services;
 
 use Wever\Laradot\App\Services\DotService;
-use App\Models\CheckIn;
-use App\Models\File;
+use App\Repositories\CheckInRepository;
+use App\Repositories\FileRepository;
 
 class CheckInService extends DotService
 {
-    public function __construct()
+    protected $checkInRepository;
+    protected $fileRepository;
+
+    public function __construct(CheckInRepository $checkInRepository, FileRepository $fileRepository)
     {
-        parent::__construct(CheckIn::class);
+        parent::__construct($checkInRepository->getModel());
+        $this->checkInRepository = $checkInRepository;
+        $this->fileRepository = $fileRepository;
     }
+
     public function checkIn($file_id, $notify = true)
     {
-        $file = File::lockForUpdate()->findOrFail($file_id);
+        $file = $this->fileRepository->lockAndFind($file_id);
         $user = request()->user();
-        if (!$file->groups()->exists()) {
+
+        if (!$this->fileRepository->hasGroups($file)) {
             throwError("This file isn't attached to any group yet.");
         }
-        if ($file->activeCheckIns()->exists()) {
+
+        if ($this->fileRepository->hasActiveCheckIns($file)) {
             throwError("This file is already checked-in by a user.");
         }
-        $model = $this->dotCreate([
+
+        $model = $this->checkInRepository->create([
             'file_id' => $file->id,
             'user_id' => $user->id,
             'checked_in_at' => now()
         ]);
+
         if ($notify) {
-            $group = $file->groups()->first();
+            $group = $this->fileRepository->getFirstGroup($file);
             app('firebase')->sendMultipleUsers(
                 $group->members,
                 __('notifications.group.file.check-in.title'),
-                __(
-                    'notifications.group.file.check-in.body',
-                    [
-                        'groupName' => $group->name,
-                        'fileName' => $file->name,
-                    ]
-                ),
+                __('notifications.group.file.check-in.body', [
+                    'groupName' => $group->name,
+                    'fileName' => $file->name,
+                ])
             );
         }
+
         return $model;
     }
 
-    public function bulkCheckIn(array $files_ids)
+    public function bulkCheckIn(array $file_ids)
     {
         $result = [];
-        foreach ($files_ids as $fId) {
-            $result[] = $this->checkIn($fId, false);
+        foreach ($file_ids as $file_id) {
+            $result[] = $this->checkIn($file_id, false);
         }
-        $files = File::with(['groups.members'])->whereIn('id', $files_ids)->get();
+
+        $files = $this->fileRepository->getFilesWithGroups($file_ids);
         foreach ($files as $file) {
-            $group = $file->groups->first();
+            $group = $this->fileRepository->getFirstGroup($file);
             app('firebase')->sendMultipleUsers(
                 $group->members,
                 __('notifications.group.file.check-in.title'),
-                __(
-                    'notifications.group.file.check-in.body',
-                    [
-                        'groupName' => $group->name,
-                        'fileName' => $file->name,
-                    ]
-                ),
+                __('notifications.group.file.check-in.body', [
+                    'groupName' => $group->name,
+                    'fileName' => $file->name,
+                ])
             );
         }
+
         return $result;
     }
-    public function checkOut($file_id,$user=null)
+
+    public function checkOut($file_id, $user = null)
     {
-        $file = File::findOrFail($file_id);
-        $user??= request()->user();
-        $checkIn = $file->activeCheckIns()->where('user_id', $user->id)->first();
+        $file = $this->fileRepository->findOrFail($file_id);
+        $user ??= request()->user();
+
+        $checkIn = $this->checkInRepository->getActiveCheckIn($file, $user->id);
+
         if (!$checkIn) {
             throwError("You can't check-out when you didn't check-in.");
         }
+
         if (request()->hasFile('file')) {
             $newFile = request()->file('file');
+            $this->fileRepository->validateFileExtension($newFile, $file);
+
             $oldFilePath = $file->path;
-            if ($newFile->getClientOriginalExtension() != $file->extension) {
-                throwError("Thew new file should have the same extension as the original one.");
-            }
-            $file->storeFile('path', $newFile, false);
-            //history stuff
-            app(FileHistoryService::class)->createVersion(
-                $file,
-                $checkIn,
-                $file->path
-            );
+            $this->fileRepository->storeFile($file, 'path', $newFile);
+
+            app(FileHistoryService::class)->createVersion($file, $checkIn, $oldFilePath);
         }
-        $model = $this->dotUpdate($checkIn, [
-            'checked_out_at' => now()
-        ]);
-        $model->load(['file']);
-        $group = $file->groups()->first();
+
+        $model = $this->checkInRepository->updateCheckOut($checkIn, now());
+
+        $group = $this->fileRepository->getFirstGroup($file);
         app('firebase')->sendMultipleUsers(
             $group->members,
             __('notifications.group.file.check-out.title'),
-            __(
-                'notifications.group.file.check-out.body',
-                [
-                    'groupName' => $group->name,
-                    'fileName' => $file->name,
-                ]
-            ),
+            __('notifications.group.file.check-out.body', [
+                'groupName' => $group->name,
+                'fileName' => $file->name,
+            ])
         );
+
         return $model;
     }
 }

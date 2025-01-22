@@ -1,10 +1,7 @@
 <?php
 
 namespace App\Services;
-
-use App\Http\Resources\UserResource;
 use App\Models\File;
-use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
