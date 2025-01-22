@@ -106,7 +106,6 @@ class CheckInService extends DotService
                 'fileName' => $file->name,
             ])
         );
-
         return $model;
     }
 }
