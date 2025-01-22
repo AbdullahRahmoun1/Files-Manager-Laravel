@@ -65,14 +65,13 @@ class User extends Authenticatable
             ->whereNull('left_at')
             ->whereNotNull('joined_at');
     }
-    public function groupeInvitations()
+    public function groupInvitations()
     {
         return $this->belongsToMany(Group::class, GroupUser::class)
         ->where('invitation_expires_at', '>', now())
         ->whereNull("refused_at")
         ->whereNull('joined_at');
     }
-
     public function fcmTokens(){
         return $this->morphMany(FirebaseToken::class,'owner');
     }

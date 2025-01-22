@@ -21,7 +21,7 @@ class GroupService extends DotService
     }
     public function dotIndex($query = null)
     {
-        $query = request()->user()->groups()->with('files');
+        $query = request()->user()->groups()->with('files','members');
         return parent::dotIndex($query);
     }
     public function dotAll($query = null)
@@ -51,6 +51,16 @@ class GroupService extends DotService
             'inviter_id' => request()->user()->id
         ]);
         return $group;
+    }
+
+    public function dotDelete($id)
+    {
+        $group =Group::findOrFail($id);
+        $user = request()->user();
+        if($user->id != $group->creator_id){
+            throwError("You don't have the permission to do this.");
+        }
+        return parent::dotDelete($id);
     }
 
     public function getUserGroupsWithFiles()
@@ -93,8 +103,8 @@ class GroupService extends DotService
             throwError("Group owner can't be kicked out.");
         }
         $membership = $this->groupUserRepo->findActiveMembership($group->id, $user->id);
-        $this->groupUserRepo->saveKickedStatus($membership);
 
+        $this->groupUserRepo->saveKickedStatus($membership);
         app('firebase')->send(
             $user,
             __('notifications.group.invitation.kicked.title'),

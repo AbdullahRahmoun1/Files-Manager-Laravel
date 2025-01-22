@@ -9,8 +9,6 @@ class FileHistory extends Model
 {
     use HasFactory;
     use Filterable;
-
-
     protected $fillable = [
         'path',
         'version',

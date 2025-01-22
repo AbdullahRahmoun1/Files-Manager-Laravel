@@ -20,7 +20,7 @@ class GroupUserRepository extends DotRepository
             ->active()
             ->where('group_id', $groupId)
             ->where('user_id', $userId)
-            ->first();
+            ->firstOrFail();
     }
 
     public function saveKickedStatus($membership)

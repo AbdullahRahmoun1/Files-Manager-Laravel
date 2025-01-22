@@ -7,6 +7,7 @@ use Wever\Laradot\App\Services\DotService;
 use App\Models\File;
 use App\Models\Group;
 use App\Models\GroupFile;
+use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class FileService extends DotService
@@ -44,7 +45,7 @@ class FileService extends DotService
             $fileModel->storeFile('path', $file);
             $fileModel->update(['extension' => $file->getClientOriginalExtension()]);
             app(FileHistoryService::class)
-                ->createVersion($fileModel, null, $fileModel->path);
+                    ->createVersion($fileModel, null, $fileModel->path);
         }
         if ($isGroupOwner) {
             app('firebase')->sendMultipleUsers(
