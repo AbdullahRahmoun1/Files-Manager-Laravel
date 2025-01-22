@@ -6701,16 +6701,16 @@
         },
         {
             "name": "wever/laradot",
-            "version": "v3.1.0",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/composer5100442/Laradot.git",
-                "reference": "0484901e22202adaea632869d5346377907accd2"
+                "reference": "3223972a50a0294cbec215c6ae8d955ecf611bc7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/composer5100442%2FLaradot/repository/archive.zip?sha=0484901e22202adaea632869d5346377907accd2",
-                "reference": "0484901e22202adaea632869d5346377907accd2",
+                "url": "https://gitlab.com/api/v4/projects/composer5100442%2FLaradot/repository/archive.zip?sha=3223972a50a0294cbec215c6ae8d955ecf611bc7",
+                "reference": "3223972a50a0294cbec215c6ae8d955ecf611bc7",
                 "shasum": ""
             },
             "require": {
@@ -6742,9 +6742,9 @@
             "description": "A library built on top of the Laravel framework to enhance development.",
             "support": {
                 "issues": "https://gitlab.com/composer5100442/Laradot/-/issues",
-                "source": "https://gitlab.com/composer5100442/Laradot/-/tree/v3.1.0"
+                "source": "https://gitlab.com/composer5100442/Laradot/-/tree/v3.1.1"
             },
-            "time": "2025-01-20T14:05:40+00:00"
+            "time": "2025-01-22T13:50:02+00:00"
         }
     ],
     "packages-dev": [
@@ -9202,5 +9202,5 @@
         "php": "^8.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

@@ -4,14 +4,17 @@ namespace App\Services;
 
 use App\Repositories\GroupUserRepository;
 use App\Models\Group;
+use App\Models\GroupUser;
 use App\Models\User;
+use Wever\Laradot\App\Services\DotService;
 
-class GroupUserService
+class GroupUserService extends DotService
 {
     protected $groupUserRepo;
 
     public function __construct(GroupUserRepository $groupUserRepo)
     {
+        parent::__construct(GroupUser::class);
         $this->groupUserRepo = $groupUserRepo;
     }
 

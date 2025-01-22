@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\GroupFileStatusEnum;
 use App\Models\CheckIn;
 use App\Models\Group;
 use App\Models\GroupFile;
@@ -145,12 +144,13 @@ class UserService extends DotService
         ];
     }
 
-    public function checkOutAllGroupFiles(User $user,Group $group){
+    public function checkOutAllGroupFiles(User $user, Group $group)
+    {
         $checkInService = app(CheckInService::class);
-        foreach($group->files()->pluck('group_files.file_id') as $file){
-            try{
-                $checkInService->checkOut($file,$user);
-            }catch(Exception $e){
+        foreach ($group->files()->pluck('group_files.file_id') as $file) {
+            try {
+                $checkInService->checkOut($file, $user);
+            } catch (Exception $e) {
                 Log::error($e->getMessage());
             }
         }

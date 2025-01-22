@@ -8,13 +8,15 @@ use App\Repositories\FileRepository;
 use App\Models\GroupFile;
 use App\Enums\GroupFileStatusEnum;
 use Illuminate\Support\Facades\Storage;
+use Wever\Laradot\App\Services\DotService;
 
-class FileService
+class FileService extends DotService
 {
     protected $fileRepository;
 
     public function __construct(FileRepository $fileRepository)
     {
+        parent::__construct(File::class);
         $this->fileRepository = $fileRepository;
     }
 
@@ -153,5 +155,109 @@ class FileService
                 __('notifications.group.file.add-request-rejected.body', ['groupName' => $group->name, 'fileName' => $file->name])
             );
         }
+    }
+
+
+    public function downloadFile(File $file)
+    {
+        $user = request()->user();
+        //validate user can access file
+        return response()->download(Storage::disk('public')->path($file->path));
+    }
+
+    public function dotCreate($data)
+    {
+        $user = request()->user();
+        $group = $user->groups()->where('groups.id', $data['group_id'])->first();
+        if (!$group) {
+            throwError("You don't have the permission to create files in this group.");
+        }
+        $data['creator_id'] = request()->user()->id;
+        unset($data['path']);
+        $fileModel = parent::dotCreate($data);
+        $isGroupOwner = $group->creator_id == $user->id;
+        $fileModel->groups()->attach($data['group_id'], [
+            'status' => $isGroupOwner ?
+                GroupFileStatusEnum::ACCEPTED :
+                GroupFileStatusEnum::PENDING,
+            'created_at' => now()
+        ]);
+        if (!$data['is_folder']) {
+            $file = request()->file('path');
+            $fileModel->storeFile('path', $file);
+            $fileModel->update(['extension' => $file->getClientOriginalExtension()]);
+            app(FileHistoryService::class)
+                ->createVersion($fileModel, null, $fileModel->path);
+        }
+        if ($isGroupOwner) {
+            app('firebase')->sendMultipleUsers(
+                $group->members,
+                __('notifications.group.file.created.title'),
+                __(
+                    'notifications.group.file.created.body',
+                    [
+                        'groupName' => $group->name,
+                        'fileName' => $fileModel->name,
+                    ]
+                ),
+            );
+        } else {
+            app('firebase')->sendMultipleUsers(
+                $group->members,
+                __('notifications.group.file.add-request.title'),
+                __(
+                    'notifications.group.file.add-request.body',
+                    [
+                        'groupName' => $group->name,
+                        'fileName' => $fileModel->name,
+                    ]
+                ),
+            );
+        }
+        return [
+            'message' => $isGroupOwner ? "Success." : "Success!, waiting for group admin's approval.",
+            'file' => $fileModel
+        ];
+    }
+
+    public function removeFile(Group $group, File $file)
+    {
+        if (request()->user()->id != $group->creator_id) {
+            throwError("Only group admin can remove files/folders.");
+        }
+        $gFile = GroupFile::active()->where('file_id', $file->id)->firstOrFail();
+        $gFile->removed_at = now();
+        $gFile->save();
+        $file->deleted_at = now();
+        $file->save();
+        app('firebase')->sendMultipleUsers(
+            $group->members,
+            __('notifications.group.file.removed.title'),
+            __(
+                'notifications.group.file.removed.body',
+                [
+                    'groupName' => $group->name,
+                    'fileName' => $file->name,
+                ]
+            ),
+        );
+    }
+
+    public function getChildren(File $file)
+    {
+        if ($file->path) {
+            throwError("Files don't have children!");
+        }
+        return $file->directChildren;
+    }
+
+    public function rename(File $file, $name)
+    {
+        if (!$name) {
+            throwError("Name is required.");
+        }
+        $file->name = request('name');
+        $file->save();
+        return $file;
     }
 }
