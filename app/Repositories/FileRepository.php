@@ -69,11 +69,8 @@ class FileRepository extends DotRepository
      */
     public function storeFile($file, $pathColumn, $newFile, $deleteOld = false)
     {
-        if ($deleteOld) {
-            Storage::delete($file->$pathColumn);
-        }
-        $newPath = $newFile->store('files');
-        $file->update([$pathColumn => $newPath]);
+        $file->storeFile('path',$newFile,$deleteOld);
+        $file->update([$pathColumn => $file->path]);
     }
 
     public function getGroupFiles(Group $group, string $status = null)
@@ -100,6 +97,4 @@ class FileRepository extends DotRepository
         $file->save();
         return $file;
     }
-
-
 }

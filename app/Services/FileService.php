@@ -7,7 +7,6 @@ use Wever\Laradot\App\Services\DotService;
 use App\Models\File;
 use App\Models\Group;
 use App\Models\GroupFile;
-use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class FileService extends DotService

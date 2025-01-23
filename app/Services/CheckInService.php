@@ -88,15 +88,11 @@ class CheckInService extends DotService
         if (request()->hasFile('file')) {
             $newFile = request()->file('file');
             $this->fileRepository->validateFileExtension($newFile, $file);
-
-            $oldFilePath = $file->path;
             $this->fileRepository->storeFile($file, 'path', $newFile);
-
-            app(FileHistoryService::class)->createVersion($file, $checkIn, $oldFilePath);
+            app(FileHistoryService::class)->createVersion($file, $checkIn, $file->path);
         }
 
         $model = $this->checkInRepository->updateCheckOut($checkIn, now());
-
         $group = $this->fileRepository->getFirstGroup($file);
         app('firebase')->sendMultipleUsers(
             $group->members,
